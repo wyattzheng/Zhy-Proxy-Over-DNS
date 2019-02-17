@@ -25,7 +25,7 @@ var DNS=
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -657,7 +657,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=1;
+				this.actived-=10;
 				
 				
 	if(this.actived<=0){
@@ -712,7 +712,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=1;
+this.actived-=2;
 
 
 
