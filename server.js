@@ -59,7 +59,9 @@ server.send(pk.encode(),rinfo.port);
 		this.recvcallback=callback;
 	}
 	this.handlemessage=(msg,r)=>{
+try{
 	var pk=new dnspacket(msg);
+}catch(e){}
 	if(pk.queries.length>0)
 	{
 			
@@ -274,9 +276,10 @@ function tcpserveroverzdns(domain){
 		
 		for(var i in this.connections)
 if(this.connections[i].Timeout){	
-		//this.connections[i].Timeout-=100;
+	//	this.connections[i].Timeout-=1000;
 		if(this.connections[i].Timeout<=0){
-			this.zdns.send(i,encode2("end"));
+	//		this.zdns.send(i,encode("end"));
+this.connections[i].destroy();
 delete this.connections[i];
 
 		}	
@@ -305,6 +308,47 @@ delete this.connections[i];
 		let datalen=raw.readUInt16BE(offset);offset+=2;
 		ret.data=raw.slice(offset,offset+datalen);offset+=datalen;
 		return ret;
+	}
+	this.send=(set,dat)=>{
+		
+				if(this.connections[set]){
+				this.connections[set].Timeout=5000;
+
+				let splitat=260;
+
+				let partid=0;let partcounts=(dat.length/splitat==0)?parseInt(dat.length/splitat):(parseInt(dat.length/splitat)+1);
+
+				let besent=[];
+
+				if(partcounts<this.SETs[set].length)
+				for(var i=0;i<(this.SETs[set].length-partcounts);i++)
+				{besent.push(Buffer.alloc(0));
+				partcounts++;
+				}
+
+				for(var i=0;i<=dat.length;i+=splitat)
+				{
+					let part=dat.slice(i,i+splitat);
+				//	this.zdns.send(id,encode("data",part));
+					besent.push(part);
+				}
+
+
+				for(var i in besent)
+				{
+					let target=this.SETsINFO[set].selector(partcounts,i);
+
+					this.zdns.send(target
+							,encode("d|"+i+"|"+besent.length+"|"+this.SETsINFO[set].dataid+"|"+target,besent[i]))
+		//			console.log(this.SETsINFO[fromset].dataid,partcounts,i);
+				}
+
+
+
+					this.SETsINFO[set].dataid++;
+
+			
+				}
 	}
 
 	this.applyfor=(idinfo,setid)=>{
@@ -393,14 +437,18 @@ try{
 			delete this.connections[fromset];
 
 
-			let sock=new tcp.Socket();
-		//	sock.Timeout=5000;
 		//	sock.setTimeout(sock.Timeout);
 		console.log("尝试连接",arr);
 			dns.resolve4(domainname,(err,r)=>{
 		if(r){
 
 			ip=r[0];
+try{
+			let sock=new tcp.Socket();
+			sock.Timeout=5000;
+				sock.on("timeout",()=>{delete this.connections[fromset];});
+			sock.on("error",()=>{this.zdns.send(id,encode("end"));delete this.connections[fromset];});
+
 			sock.connect(port,ip,()=>{
 		this.SETs[arr[4]]=[];this.SETsINFO[arr[4]]={count:0};
 		let bs=arr[3].split(",");
@@ -413,7 +461,7 @@ try{
 		this.zdns.send(id,encode("connected",Buffer.from(ip+":"+port)));
 
 		console.log("连接成功",arr);
-
+				sock.Timeout=99999999999;
 				sock.on("close",()=>{
 		//	this.zdns.send(id,encode("end"));
 		//	console.log("连接关闭",this.connections[id].address().address+":"+this.connections[id].address().port);
@@ -434,70 +482,29 @@ try{
 
 			});
 			
-			sock.on("error",()=>{
-			//	console.log(id,"end");
-				this.zdns.send(id,encode("end"));
-				
-					delete this.connections[fromset];
-	
-			});
 			//setTimeout(()=>this.zdns.send(id,encode("end")),5000);
 			//this.zdns.coxx=0;
 					
 			sock.on("data",(dat)=>{
-				sock.Timeout=5000;
-
-				if(this.connections[fromset]){
-				this.connections[fromset].Timeout=5000;
-				let str=(dat+"");
+							let str=(dat+"");
 				if(str.substring(0,4)=="HTTP")
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
-				let splitat=260;
+for(let i=0;i<=dat.length;i+=1024*10)			
+this.send(fromset,dat.slice(i,i+1024*10));
 
-				let partid=0;let partcounts=(dat.length/splitat==0)?parseInt(dat.length/splitat):(parseInt(dat.length/splitat)+1);
-
-				let besent=[];
-
-				if(partcounts<this.SETs[fromset].length)
-				for(var i=0;i<(this.SETs[fromset].length-partcounts);i++)
-				{besent.push(Buffer.alloc(0));
-				partcounts++;
-				}
-
-				for(var i=0;i<=dat.length;i+=splitat)
-				{
-					let part=dat.slice(i,i+splitat);
-				//	this.zdns.send(id,encode("data",part));
-					besent.push(part);
-				}
-
-
-				for(var i in besent)
-				{
-					let target=this.SETsINFO[fromset].selector(partcounts,i);
-
-					this.zdns.send(target
-							,encode("d|"+i+"|"+besent.length+"|"+this.SETsINFO[fromset].dataid+"|"+target,besent[i]))
-					console.log(this.SETsINFO[fromset].dataid,partcounts,i);
-				}
-
-
-
-					this.SETsINFO[fromset].dataid++;
-
-			
-				}
 
 			});
 
-				sock.dataid=0;
-				sock.endid=0;
+//				sock.dataid=0;
+//				sock.endid=0;
 				this.connections[fromset]=sock;
 		
 			
 			});
+}catch(e){};
+
 		}
 
 			});

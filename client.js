@@ -15,35 +15,26 @@ var ZDNSALIVE=0;
 var DNS=
 [
 
-[["8.8.8.8",0.7],["9.9.9.9",0.3]],
-[["1.2.4.8",1]],
-[["210.2.4.8",1]],
-[["178.128.57.53",1]],
-[["37.235.1.174",1]],
-[["37.235.1.177",1]],
-[["156.154.70.1",1]],
-[["156.154.71.5",1]],
-[["203.112.2.4",1]],
-[["63.223.94.66",1]],
-[["101.6.6.6",1]],
-[["202.141.162.123",1]],
-[["208.67.222.222",1]],
-[["208.67.220.220",1]],
-[["208.67.220.222",1]],
-[["208.67.222.220",1]],
-
-
+[["8.8.8.8",0.5],["101.6.6.6",0.5]],
+[["1.2.4.8",0.5],["210.2.4.8",0.5]],
+[["202.55.21.85",0.5],["202.55.11.100",0.5]],
+[["8.8.4.4",0.5],["208.67.222.222",0.5]]
 
 ];
+//[["223.113.97.99",0.5],["119.29.29.29",0.5]],
+//[["63.223.94.66",0.5],["40.73.101.101",0.5]],
+//[["168.95.1.1",0.5],["168.95.192.1",0.5]],
+
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com"];
 
 
 var hbman=new heartbeatManager(DNS);
 
-/*
-setInterval(()=>{
-	console.log("当前空闲DNS组"+hbman.getasetofdns());
-},2000)*/
 
+/*setInterval(()=>{
+	console.log("当前空闲DNS组"+hbman.getasetofdns());
+},2000)
+*/
 
 function httpencode(p,body){
 	
@@ -84,8 +75,10 @@ tcp.createServer((req)=>{
 	req.on("close",()=>{if(req.client){req.client.close();req.client=undefined;req.tunnel=false;req.end()}})
 	req.on("error",()=>{/*if(req.client)req.client.close();req.client=undefined;*/})
 	req.on("end",()=>{if(req.client){req.client.close();req.client=undefined;req.tunnel=false;req.end()}})
-	req.on("data",(data)=>{
 	
+	
+	req.on("data",(data)=>{
+//onsole.log(data);
 	let p=new parser("REQUEST");
 	let body=Buffer.allocUnsafe(0);
 	p[2]=(b)=>{
@@ -106,6 +99,7 @@ tcp.createServer((req)=>{
 			if(p.info.method==5)//CONNECT
 		{
 				https=true;
+				
 		}
 		p.info.headers[getOption("Proxy-Connection")]="Connection";
 		if(getOption("Connection")>=0)
@@ -124,10 +118,14 @@ tcp.createServer((req)=>{
 		
 		
 //	new tcpclientoverzdns("proxyoverdns.math.cat",[["8.8.8.8",0.2],["119.29.29.29",0.2],["182.254.116.116",0.2],["9.9.9.9",0.2],["119.28.28.28",0.1],["1.2.4.8",0.1]],(client)=>{
-	new tcpclientoverzdns("proxyoverdns.math.cat",hbman,(client)=>{
-				
-	//if(host.ip=="www.ygu.edu.cn")
-		
+
+		for(var i in except)
+		if(host.ip.substr(-except[i].length,except[i].length)===except[i])
+			return;
+//		if(host.ip!="esu.wiki")return;
+
+	var client=new tcpclientoverzdns("proxyoverdns.math.cat",hbman);
+
 			client.connect(host.port,host.ip,(err)=>{
 				if(err)
 				{console.log("连接失败");req.end();return;}
@@ -175,9 +173,7 @@ tcp.createServer((req)=>{
 			})
 			});
 			
-			
-			});
-			
+				
 		
 		});
 		
@@ -241,7 +237,7 @@ function heartbeatManager(DNSset){
 	
 }
 
-function tcpclientoverzdns(domain,hbmanager,created){
+function tcpclientoverzdns(domain,hbmanager){
 	
 	this.SETid=10000+parseInt(Math.random()*10000);//"一组"通信桥的1d
 	this.zdnsSET=[];//新增多桥支持
@@ -282,6 +278,15 @@ function tcpclientoverzdns(domain,hbmanager,created){
 	
 	this.gctimer=	setInterval(()=>{
 		if(this.actived<=0)return;
+		let dead=false;
+		for(var i in this.zdnsSET)
+			if(this.zdnsSET[i].actived<=0)
+				dead=true;
+		
+		if(dead)
+			this.close()
+		
+		
 	/*	let cb=this.connectokcallback?this.connectokcallback:()=>{};
 		if(!this.connected && this.ip && this.port)
 		{
@@ -292,13 +297,13 @@ function tcpclientoverzdns(domain,hbmanager,created){
 	
 		}
 		if(this.retrytime<=0){this.close();cb("error");}
-	*/
 	
-		this.actived-=30;
-		if(this.actived<=0)
-			this.connected=false;
+	*/
+	//	this.actived-=100;
+		//if(this.actived<=0)
+		//	this.connected=false;
 		
-	},500);
+	},1000);
 	
 	function decode(raw){
 		let ret={action:"",data:Buffer.alloc(0)};
@@ -329,6 +334,11 @@ console.log("开始连接 "+ip+":"+port);
 		}
 	}
 	this.close=function(){
+		for(let i=0;i<this.zdnsSET.length;i++)
+		{
+			this.zdnsSET[i].close();
+		}
+		
 		this.actived=-1;
 		this.retrytime=-1;
 		this.connectokcallback=undefined;
@@ -366,7 +376,7 @@ console.log("开始连接 "+ip+":"+port);
 		
 		this.writedataid++;
 		//this.zdnsSET[0].send(encode("send",Buffer.from(data)));
-	console.log("发送数据",data.length,this.ip+":"+this.port);
+	console.log("发送数据",data.length,this.ip+":"+this.port,dnsservers);
 	
 	}
 
@@ -484,7 +494,7 @@ console.log("开始连接 "+ip+":"+port);
 				let fulldata=undefined;
 				//console.log(Object.keys(this.partdatas).length,partscount,partid,dataid);
 				
-					console.log("拼接",dataid,Object.keys(this.partdatas[dataid]).length,partscount,acts[4]);
+					console.log("拼接",dataid,Object.keys(this.partdatas[dataid]).length,partscount,dnsservers);
 			
 			
 				if(Object.keys(this.partdatas[dataid]).length>=partscount)//所有分块数据已就绪
@@ -526,7 +536,6 @@ console.log("开始连接 "+ip+":"+port);
 	this.onend=function(f){
 		this.endcallback=f;
 	}
-	created(this);
 	
 }
 
@@ -536,11 +545,11 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	this.nowloc=0;
 	this.clis=[];
 	
-	
+	this.tick=[];
 	this.sendheartbeat=async ()=>{
 		if(!this.clis[0])return;
 		if(!this.clis[this.nowloc])return;
-	
+	//console.log("heartbeat",this.clis[0].comid)
 		let pk=new dnspacket();
 	pk.id=10000+parseInt(Math.random()*10000);
 			pk.flag_RD=1;
@@ -581,25 +590,37 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		return this.clis.length>0?(sum/this.clis.length):0;
 	}	
 	 this.manage=(zdns_cli)=>{//管理一个zdns客户端
-		 this.clis.push(zdns_cli);
 		
-			
+			 this.tick.push({act:"man",to:zdns_cli});
 	 }
 	 this.unmanage=(zdns_cli)=>{//脱离管理
-		 this.clis.splice(this.clis.indexOf(zdns_cli));
-		 
+		 this.tick.push({act:"unm",to:zdns_cli});
 	 }
 
-
+	this.handletick=()=>{
+		let task=this.tick.shift();
+		if(task)
+		switch(task.act){
+			case "man":
+			this.clis.push(task.to);
+			break;
+			case "unm":
+			this.clis.splice(this.clis.indexOf(task.to),100);
+			break;
+			
+		}
+		
+	
+	}
 
 
 	this.timer=async ()=>{
-	function sleep(){
-		return new Promise((y)=>setTimeout(y,1000));
+	function sleep(tm){
+		return new Promise((y)=>setTimeout(y,tm));
 	}
 	while(true){
+	     this.handletick();
 		await this.sendheartbeat();	
-		
 		await sleep(1200);
 		
 	}
@@ -613,7 +634,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	this.comid=parseInt(1000000+Math.random()*10000000)+"";
 	this.domain=domain;
-	this.sock=dgram.createSocket('udp4',50);
+	this.sock=dgram.createSocket('udp4',10);
 	//sock.setEncoding("binary");
 	this.dnspacketid=0;//for reliable 接收有一套ID机制
 	this.dnspacketcache={};
@@ -626,7 +647,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		this.timer=setInterval(()=>{
 			
-			for(let i=0;i<this.server_sendpacketid-1;i++)
+			for(let i=0;i<this.server_sendpacketid-5;i++)
 			if(this.sending[i])
 				delete this.sending[i];
 			
@@ -636,15 +657,18 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=30;
+				this.actived-=1;
+				
+				
 	if(this.actived<=0){
 		clearInterval(this.timer);ZDNSALIVE--;console.log("当前通信桥总数量:"+ZDNSALIVE);
 		heartbeat.unmanage(this);
 		
-delete this;
+//delete this;
+
 			}
 		
-		},400);
+		},800);
 	
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
@@ -685,8 +709,13 @@ delete this;
 		if(pk.answers[0].data.length<20 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
 	
-		
+//	if(!isHeartbeat)
+	
 		if(isHeartbeat){
+this.actived-=2;
+
+
+
 
 		this.server_sendpacketid=parseInt((pk.answers[0].data+"").substring(15,pk.answers[0].data.length-1));
 	/*if(this.server_sendpacketid>0)
@@ -694,7 +723,6 @@ delete this;
 	*/	
 		return;}
 	
-		this.actived+=500;
 		
 		
 		//let askid=parseInt(pk.answers[0].data.substr(0,pk.answers[0].data.length-1));
@@ -726,6 +754,7 @@ delete this;
 
 		if(this.recvcallback)
 		{
+	
 			//console.log(pk.answers);
 			
 			let lastid=pk.answers[0].ttl;
@@ -748,6 +777,8 @@ delete this;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
+				this.actived=1500;
+	
 			this.recvcallback(Buffer.concat(packets));
 
 		}
@@ -757,13 +788,13 @@ delete this;
 		
 		};
 	this.sock.on("message",this.msgcallback);
-	this.actived=2000;
+	this.actived=1000;
 	this.packetcount=0;
 	this.send=(da)=>{
 		
 		//if(da.length>50)
 			
-			this.actived=1000;
+			this.actived=1500;
 	
 		this.packetcount++;
 
@@ -782,11 +813,12 @@ delete this;
 		
 		}
 	}
-	
+	this.close=()=>{this.actived=-1;}
 	this.dosend=(partdata,prefix,spkid)=>{
 			//	console.log(da.length);
 
 
+	this.actived=1000;
 
 	let pk=new dnspacket();
 	pk.id=10000+parseInt(Math.random()*10000);
