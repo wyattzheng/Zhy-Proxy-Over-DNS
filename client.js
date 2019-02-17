@@ -605,7 +605,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			this.clis.push(task.to);
 			break;
 			case "unm":
-			this.clis.splice(this.clis.indexOf(task.to),100);
+			this.clis.splice(this.clis.indexOf(task.to),1);
 			break;
 			
 		}
@@ -634,7 +634,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	this.comid=parseInt(1000000+Math.random()*10000000)+"";
 	this.domain=domain;
-	this.sock=dgram.createSocket('udp4',10);
+	this.sock=dgram.createSocket('udp4',50);
 	//sock.setEncoding("binary");
 	this.dnspacketid=0;//for reliable 接收有一套ID机制
 	this.dnspacketcache={};
@@ -668,7 +668,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 
 			}
 		
-		},800);
+		},1200);
 	
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
@@ -712,7 +712,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=2;
+this.actived-=1;
 
 
 
