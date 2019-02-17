@@ -320,8 +320,8 @@ delete this.connections[i];
 
 				let besent=[];
 
-				if(partcounts<this.SETs[set].length)
-				for(var i=0;i<(this.SETs[set].length-partcounts);i++)
+				if(partcounts<=this.SETs[set].length)
+				for(var i=0;i<=(this.SETs[set].length-partcounts);i++)
 				{besent.push(Buffer.alloc(0));
 				partcounts++;
 				}
@@ -376,7 +376,7 @@ delete this.connections[i];
 			for(var u in that.SETs[setid])
 				{
 				let cu=parseFloat(that.SETs[setid][u].support).toFixed(2)*100;
-				for(let j=0;j<cu;j++)
+				for(let j=0;j<=cu;j++)
 					pool.push(that.SETs[setid][u].id);
 				}
 
