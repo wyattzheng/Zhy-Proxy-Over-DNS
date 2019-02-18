@@ -74,9 +74,9 @@ function hostparse(str,callback){
 }
 
 tcp.createServer((req)=>{
-	req.on("close",()=>{if(req.client){req.client.close();req.client=undefined;req.tunnel=false;req.end()}})
+	req.on("close",()=>{if(req.client){req.client.close(true);req.client=undefined;req.tunnel=false;}})
 	req.on("error",()=>{/*if(req.client)req.client.close();req.client=undefined;*/})
-	req.on("end",()=>{if(req.client){req.client.close();req.client=undefined;req.tunnel=false;req.end()}})
+	req.on("end",()=>{if(req.client){req.client.close(true);req.client=undefined;req.tunnel=false;}})
 	
 	
 	req.on("data",(data)=>{
@@ -336,7 +336,7 @@ console.log("开始连接 "+ip+":"+port);
 			this.connectokcallback=ok;
 		}
 	}
-	this.close=function(){
+	this.close=function(withoutcallback){
 		for(let i=0;i<this.zdnsSET.length;i++)
 			this.zdnsSET[i].close();
 		
@@ -346,7 +346,8 @@ console.log("开始连接 "+ip+":"+port);
 		this.connectokcallback=undefined;
 		this.connected=false;
 		clearInterval(this.gctimer);
-			if(this.endcallback)
+		
+		if(this.endcallback && !withoutcallback)
 				this.endcallback();
 		console.log("关闭连接",this.ip+":"+this.port)
 		delete this;
@@ -676,7 +677,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=5;
+				this.actived-=2;
 				
 				
 	if(this.actived<=0){
@@ -731,7 +732,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=3;
+this.actived-=5;
 
 
 
