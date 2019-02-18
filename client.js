@@ -13,12 +13,14 @@ var ZDNSALIVE=0;
 
 var DNS=
 [
-[["119.29.29.29",0.3],["208.67.220.220",0.7]],
-[["61.47.7.16",0.7],["61.47.33.9",0.3]],
-[["8.8.8.8",0.5],["101.6.6.6",0.5]],
-[["8.8.4.4",0.5],["208.67.222.222",0.5]],
-[["63.223.94.66",0.5],["9.9.9.9",0.5]],
-[["168.95.1.1",0.5],["168.95.192.1",0.5]]
+[["119.29.29.29",0.5],["9.9.9.9",0.5]],
+[["208.67.220.220",0.5],["208.67.222.222",0.5]],
+[["61.47.7.16",0.5],["61.47.33.9",0.5]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+[["101.6.6.6",0.5],["63.223.94.66",0.5]],
+[["168.95.1.1",0.5],["168.95.192.1",0.5]],
+
+
 ];
 //,
 //[["208.67.222.220",0.5],["40.73.101.101",0.5]],
@@ -27,7 +29,7 @@ var DNS=
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -129,12 +131,15 @@ tcp.createServer((req)=>{
 	var client=new tcpclientoverzdns("proxyoverdns.math.cat",hbman);
 
 			client.connect(host.port,host.ip,(err)=>{
+			req.tunnel=false;
+				
 				if(err)
 				{console.log("连接失败");req.end();return;}
 			
 				
 					if(https)
 			{
+				
 				try{
 				req.write("HTTP/1.1 200 Connection Established\r\n\r\n");
 			req.tunnel=true;
@@ -568,7 +573,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<8;i++){//预加载
+		for(let i=0;i<5;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -641,7 +646,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(1200);
+		await sleep(600);
 		
 	}
 	};
@@ -677,7 +682,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=2;
+				this.actived-=3;
 				
 				
 	if(this.actived<=0){
@@ -712,7 +717,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.recv=(callback)=>{
 		this.recvcallback=callback;
 	}
-	this.sock.on("error",(e)=>{console.log(e);this.close()});
+	this.sock.on("error",(e)=>{console.log(e);this.close(true)});
 	this.msgcallback=(msg,r)=>{
 		let isHeartbeat=false;
 		
@@ -732,7 +737,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=5;
+this.actived-=2;
 
 
 
@@ -757,8 +762,8 @@ this.actived-=5;
 			this.dnspacketcache[askid]={msg:msg,r:r};
 			let ks=Object.keys(this.dnspacketcache);
 			
-			if(ks.length>50)
-			delete this.dnspacketcache[ks[0]];
+			//if(ks.length>50)
+		//	delete this.dnspacketcache[ks[0]];
 			
 			
 			return;}
@@ -797,7 +802,7 @@ this.actived-=5;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=1500;
+				this.actived=3500;
 	
 			this.recvcallback(Buffer.concat(packets));
 
@@ -814,7 +819,7 @@ this.actived-=5;
 		
 		//if(da.length>50)
 			
-			this.actived=3500;
+			this.actived=1500;
 	
 		this.packetcount++;
 
