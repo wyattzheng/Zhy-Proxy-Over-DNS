@@ -321,7 +321,7 @@ delete this.connections[i];
 				let besent=[];
 
 				if(partcounts<=this.SETs[set].length)
-				for(var i=0;i<=(this.SETs[set].length-partcounts);i++)
+				for(var i=0;i<=(this.SETs[set].length);i++)
 				{besent.push(Buffer.alloc(0));
 				partcounts++;
 				}
