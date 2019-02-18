@@ -1,7 +1,6 @@
 var tcp=require("net");
 var parser=require("http-parser-js").HTTPParser;
 var U=require("url");
-var dns=require("dns");
 var dnspacket=require("./zdns.js");
 var dgram = require('./udpslow.js'); 
 var base32 = require("./base32.js");
@@ -15,19 +14,18 @@ var ZDNSALIVE=0;
 var DNS=
 [
 
-[["8.8.8.8",0.5],["101.6.6.6",0.5]],
-[["1.2.4.8",0.5],["210.2.4.8",0.5]],
+[["8.8.8.8",0.34],["101.6.6.6",0.33],["1.2.4.8",0.33]],
 [["202.55.21.85",0.5],["202.55.11.100",0.5]],
 [["8.8.4.4",0.5],["208.67.222.222",0.5]],
-
-[["168.95.1.1",0.5],["168.95.192.1",0.5]]
-
+[["168.95.1.1",0.5],["168.95.192.1",0.5]],
+[["63.223.94.66",0.5],["9.9.9.9",0.5]]
+//
 ];
 //[["223.113.97.99",0.5],["119.29.29.29",0.5]],
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -122,7 +120,7 @@ tcp.createServer((req)=>{
 //	new tcpclientoverzdns("proxyoverdns.math.cat",[["8.8.8.8",0.2],["119.29.29.29",0.2],["182.254.116.116",0.2],["9.9.9.9",0.2],["119.28.28.28",0.1],["1.2.4.8",0.1]],(client)=>{
 
 		for(var i in except)
-		if(host.ip.substr(-except[i].length,except[i].length)===except[i])
+		if(host.ip.substr(-except[i].length,except[i].length)===except[i]||host.ip.indexOf(".")==-1)
 			return;
 //		if(host.ip!="esu.wiki")return;
 
@@ -346,6 +344,8 @@ console.log("开始连接 "+ip+":"+port);
 		this.connectokcallback=undefined;
 		this.connected=false;
 		clearInterval(this.gctimer);
+			if(this.endcallback)
+				this.endcallback();
 		console.log("关闭连接",this.ip+":"+this.port)
 		delete this;
 	//	this.zdns.send(encode("close"));
@@ -354,7 +354,7 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 	
-	this.write=function(data){//分段发送
+this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -566,14 +566,14 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<10;i++){//预加载
+		for(let i=0;i<8;i++){//预加载
 		
 		
 		pk.queries=[];
 		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*100)+"-"+encode2(Buffer.from("zhy's heartbeat~"))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
-		await sleep(10);
+	await sleep(30);
 		delete pk;
 		}
 		this.nowloc++;
@@ -623,7 +623,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	while(true){
 	     this.handletick();
 		await this.sendheartbeat();	
-		await sleep(1200);
+		await sleep(1000);
 		
 	}
 	};
@@ -634,9 +634,9 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(1000000+Math.random()*10000000)+"";
+	this.comid=parseInt(10000+Math.random()*100000)+"";
 	this.domain=domain;
-	this.sock=dgram.createSocket('udp4',50);
+	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
 	this.dnspacketid=0;//for reliable 接收有一套ID机制
 	this.dnspacketcache={};
@@ -659,7 +659,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=10;
+				this.actived-=05;
 				
 				
 	if(this.actived<=0){
@@ -694,7 +694,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.recv=(callback)=>{
 		this.recvcallback=callback;
 	}
-	this.sock.on("error",()=>{console.log("error")})
+	this.sock.on("error",(e)=>{console.log(e);this.close()});
 	this.msgcallback=(msg,r)=>{
 		let isHeartbeat=false;
 		
@@ -714,7 +714,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=2;
+this.actived-=10;
 
 
 
@@ -796,7 +796,7 @@ this.actived-=2;
 		
 		//if(da.length>50)
 			
-			this.actived=1500;
+			this.actived=3500;
 	
 		this.packetcount++;
 
