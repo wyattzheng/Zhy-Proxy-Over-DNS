@@ -13,12 +13,13 @@ var ZDNSALIVE=0;
 
 var DNS=
 [
-[["119.29.29.29",0.5],["9.9.9.9",0.5]],
-[["208.67.220.220",0.5],["208.67.222.222",0.5]],
-[["61.47.7.16",0.5],["61.47.33.9",0.5]],
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-[["101.6.6.6",0.5],["63.223.94.66",0.5]],
-[["168.95.1.1",0.5],["168.95.192.1",0.5]]
+[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
+//[],
+[["61.47.7.16",0.25],["61.47.33.9",0.25],["8.8.8.8",0.25],["8.8.4.4",0.25]],
+//[],
+[["101.6.6.6",0.25],["63.223.94.66",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
+//[]
+
 
 ];
 //,
@@ -361,7 +362,7 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 	
-this.write=function(data){//分段发送
+this.write2=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -391,7 +392,7 @@ this.write=function(data){//分段发送
 
 
 	}
-	this.write2=function(data){//直接发送
+	this.write=function(data){//直接发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -572,7 +573,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<5;i++){//预加载
+		for(let i=0;i<6;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -645,7 +646,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(700);
+		await sleep(600);
 		
 	}
 	};
