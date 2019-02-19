@@ -225,14 +225,14 @@ raw=fs.readFileSync("debug.txt");
 		this.com[comid].packetqueue[this.com[comid].dnspacketid]=pk;
 //		if(this.com[comid].packetqueue.length>=5){
 	
-			let keys=Object.keys(this.com[comid].packetqueue);
+			/*let keys=Object.keys(this.com[comid].packetqueue);
 			keys.sort((a,b)=>(a-b));
 			if(this.com[comid].userpacketid)
 			for(var k in keys)
 			if(keys[k]<this.userpacketid)
 			if(this.com[comid].packetqueue[keys[k]])
 			delete this.com[comid].packetqueue[keys[k]];
-			
+			*/
 
 	//	}
 		
@@ -491,8 +491,8 @@ try{
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
-for(let i=0;i<=dat.length;i+=1024*10)			
-this.send(fromset,dat.slice(i,i+1024*10));
+for(let i=0;i<=dat.length;i+=1024*5)			
+this.send(fromset,dat.slice(i,i+1024*5));
 
 
 			});

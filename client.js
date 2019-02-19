@@ -18,8 +18,7 @@ var DNS=
 [["61.47.7.16",0.5],["61.47.33.9",0.5]],
 [["8.8.8.8",0.5],["8.8.4.4",0.5]],
 [["101.6.6.6",0.5],["63.223.94.66",0.5]],
-[["168.95.1.1",0.5],["168.95.192.1",0.5]],
-
+[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 ];
 //,
@@ -29,7 +28,7 @@ var DNS=
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -82,7 +81,7 @@ tcp.createServer((req)=>{
 	
 	
 	req.on("data",(data)=>{
-//onsole.log(data);
+
 	let p=new parser("REQUEST");
 	let body=Buffer.allocUnsafe(0);
 	p[2]=(b)=>{
@@ -232,7 +231,7 @@ function heartbeatManager(DNSset){
 			sele.push({index:i,hot:sumactived});
 		}
 		sele.sort((a,b)=>{return a.hot-b.hot});
-		
+		console.log(this.DNSset[sele[0].index]);
 		return this.DNSset[sele[0].index];
 	}
 	
@@ -362,7 +361,7 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 	
-this.write2=function(data){//分段发送
+this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -392,7 +391,7 @@ this.write2=function(data){//分段发送
 
 
 	}
-	this.write=function(data){//直接发送
+	this.write2=function(data){//直接发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -573,7 +572,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<6;i++){//预加载
+		for(let i=0;i<5;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -646,7 +645,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(600);
+		await sleep(700);
 		
 	}
 	};
@@ -682,7 +681,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=3;
+				this.actived-=5;
 				
 				
 	if(this.actived<=0){
@@ -734,10 +733,10 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		if(pk.answers[0].data.length<20 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
 	
-//	if(!isHeartbeat)
 	
 		if(isHeartbeat){
-this.actived-=2;
+			
+this.actived-=5;
 
 
 
