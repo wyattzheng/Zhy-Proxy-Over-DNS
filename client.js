@@ -681,7 +681,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=5;
+				this.actived-=10;
 				
 				
 	if(this.actived<=0){
@@ -692,7 +692,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 
 			}
 		
-		},800);
+		},1500);
 	
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
@@ -736,7 +736,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=2;
 
 
 
