@@ -80,8 +80,7 @@ try{
 		let data=decode(queryname.substring(floc+1,queryname.length));
 
 		//===================ABOUT HEARTBEAT==================
-		let isHeartbeat=data.length<30&&data.toString()=="zhy's heartbeat~";
-
+		let isHeartbeat=data.length<50&&data.toString().substr(0,5)=="zhb~.";
 		if(isHeartbeat){
 
 

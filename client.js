@@ -13,12 +13,12 @@ var ZDNSALIVE=0;
 
 var DNS=
 [
-[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
+//[["119.29.29.29",0.5],["9.9.9.9",0.5]],
+[["208.67.220.220",0.5],["208.67.222.222",0.5]],
+//[["61.47.7.16",0.25],["61.47.33.9",0.25],["8.8.8.8",0.25],["8.8.4.4",0.25]],
 //[],
-[["61.47.7.16",0.25],["61.47.33.9",0.25],["8.8.8.8",0.25],["8.8.4.4",0.25]],
-//[],
-[["101.6.6.6",0.25],["63.223.94.66",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
-//[]
+[["101.6.6.6",0.5],["63.223.94.66",0.5]],
+[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 
 ];
@@ -106,7 +106,7 @@ tcp.createServer((req)=>{
 				
 		}
 		p.info.headers[getOption("Proxy-Connection")]="Connection";
-		if(getOption("Connection")>=0)
+		//if(getOption("Connection")>=0)
 		p.info.headers[getOption("Connection")+1]="Close";
 	
 		
@@ -362,7 +362,7 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 	
-this.write2=function(data){//分段发送
+this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -392,7 +392,7 @@ this.write2=function(data){//分段发送
 
 
 	}
-	this.write=function(data){//直接发送
+	this.write2=function(data){//直接发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -505,7 +505,7 @@ this.write2=function(data){//分段发送
 				
 					console.log("拼接",dataid,Object.keys(this.partdatas[dataid]).length,partscount,dnsservers);
 			
-			
+		
 				if(Object.keys(this.partdatas[dataid]).length>=partscount)//所有分块数据已就绪
 				{
 					//开始拼接
@@ -556,6 +556,13 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	
 	this.tick=[];
 	this.sendheartbeat=async ()=>{
+		let randStr=(len)=>{
+			let str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			let ret="";
+			for(let i=0;i<len;i++)
+				ret+=str.substr(parseInt(26*2*Math.random()),1);
+			return ret;
+		}
 		if(!this.clis[0])return;
 		if(!this.clis[this.nowloc])return;
 	//console.log("heartbeat",this.clis[0].comid)
@@ -577,10 +584,10 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		
 		
 		pk.queries=[];
-		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*100)+"-"+encode2(Buffer.from("zhy's heartbeat~"))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
+		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(6)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
-	await sleep(30);
+	//await sleep(30);
 		delete pk;
 		}
 		this.nowloc++;
@@ -646,7 +653,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(600);
+		await sleep(1100);
 		
 	}
 	};
@@ -672,18 +679,18 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		this.timer=setInterval(()=>{
 			
-			for(let i=0;i<this.server_sendpacketid-5;i++)
-			if(this.sending[i])
-				delete this.sending[i];
+		//	for(let i=0;i<this.server_sendpacketid-5;i++)
+		//	if(this.sending[i])
+		//		delete this.sending[i];
 			
 				
 		let next=(this.server_sendpacketid+1)>60000?0:(this.server_sendpacketid+1);
-			for(let i=next;i<next+2;i++)
+			for(let i=next;i<next+3;i++)
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=10;
-				
+				this.actived-=3;
+		
 				
 	if(this.actived<=0){
 		clearInterval(this.timer);ZDNSALIVE--;console.log("当前通信桥总数量:"+ZDNSALIVE);
@@ -693,7 +700,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 
 			}
 		
-		},1500);
+		},1000);
 	
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
