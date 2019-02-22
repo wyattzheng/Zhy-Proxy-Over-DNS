@@ -21,6 +21,7 @@ var DNS=
 [["61.47.7.16",0.5],["61.47.33.9",0.5]],
 [["8.8.8.8",0.5],["8.8.4.4",0.5]],
 [["101.6.6.6",0.5],["63.223.94.66",0.5]],
+
 [["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 
@@ -365,7 +366,7 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 	
-this.write2=function(data){//分段发送
+this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -395,7 +396,7 @@ this.write2=function(data){//分段发送
 
 
 	}
-	this.write=function(data){//直接发送
+	this.write2=function(data){//直接发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -583,14 +584,14 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<3;i++){//预加载
+		for(let i=0;i<4;i++){//预加载
 		
 		
 		pk.queries=[];
 		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(6)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
-	//await sleep(30);
+	await sleep(30);
 		//delete pk;
 		}
 		this.nowloc++;
@@ -656,7 +657,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(600);
+		await sleep(1000);
 		
 	}
 	};
@@ -688,11 +689,11 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			
 				
 		let next=(this.server_sendpacketid+1)>60000?0:(this.server_sendpacketid+1);
-			for(let i=next;i<next+2;i++)
+			for(let i=next;i<next+1;i++)
 			if(this.sending[i])
 			this.dosend(this.sending[i][0],this.sending[i][1],i);
 	
-				this.actived-=10;
+				this.actived-=5;
 		
 				
 	if(this.actived<=0){
@@ -703,7 +704,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 
 			}
 		
-		},600);
+		},1000);
 	
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
@@ -747,7 +748,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=7;
 
 
 
@@ -812,7 +813,7 @@ this.actived-=5;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=3500;
+				this.actived=1000;
 	
 			this.recvcallback(Buffer.concat(packets));
 
@@ -829,7 +830,7 @@ this.actived-=5;
 		
 		//if(da.length>50)
 			
-			this.actived=1500;
+			this.actived=2500;
 	
 		this.packetcount++;
 
