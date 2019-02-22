@@ -16,8 +16,8 @@ var DNS=
 //[["119.29.29.29",1]]
 
 
-[["119.29.29.29",0.5],["9.9.9.9",0.5]],
-[["208.67.220.220",0.5],["208.67.222.222",0.5]],
+[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
+//[],
 [["61.47.7.16",0.5],["61.47.33.9",0.5]],
 [["8.8.8.8",0.5],["8.8.4.4",0.5]],
 [["101.6.6.6",0.5],["63.223.94.66",0.5]],
@@ -584,7 +584,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<3;i++){//预加载
+		for(let i=0;i<2;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -593,7 +593,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(30);
+	//	await sleep(30);
 
 	
 	
@@ -604,13 +604,17 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	//	console.log("heartbeat");
 	}
 	this.handlemsg=()=>{
-			if(!this.clis[0])return;
-		if(!this.clis[this.nowloc])return;
+			if(!this.clis[0])return false;
+		if(!this.clis[this.nowloc])return false;
 				let next=(this.clis[this.nowloc].server_sendpacketid+1)>60000?0:(this.clis[this.nowloc].server_sendpacketid+1);
-			for(let i=next;i<next+1;i++)
+		let sent=false;
+			for(let i=next;i<next+3;i++)
 			if(this.clis[this.nowloc].sending[i])
-			this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-		
+			{
+				sent=true;
+				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
+			}
+		return sent;
 	}
 	this.getactive=()=>{//获取旗下所有cli的平均热度
 		let sum=0;
@@ -670,9 +674,10 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-		await sleep(600);
-		await this.handlemsg();
-		await sleep(600);
+	
+		(this.handlemsg())
+	await sleep(1500);
+	
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
 			this.nowloc=0;
@@ -762,7 +767,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=7;
+this.actived-=3;
 
 
 
