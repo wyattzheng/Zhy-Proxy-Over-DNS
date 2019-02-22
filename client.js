@@ -594,7 +594,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(250);
+//		await sleep(300);
 
 	
 	
@@ -613,12 +613,18 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+2;i++)
+			for(let i=next;i<next+3;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
+				let times=this.clis[this.nowloc].sending[i][3];
+				this.clis[this.nowloc].sending[i][3]=times+1;times++;
+				let calc=(Math.sqrt(1+8*times)-1)/2;
+				
+			if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-			await sleep(250);
+			//	await sleep(300);
+				}
 			}
 		return sent;
 	}
@@ -680,9 +686,9 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		await this.sendheartbeat();	
-	
-		await (this.handlemsg())
-	await sleep(250);
+	await sleep(600);
+	if(await this.handlemsg())
+	await sleep(1000);
 	
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
@@ -717,7 +723,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		//	if(this.sending[i])
 		//		delete this.sending[i];
 			
-				
+				     
 				this.actived-=5;
 		
 				
@@ -865,9 +871,9 @@ this.actived-=3;
 		this.sendpacketid++;
 		
 		if(k+100>=da.length)
-		this.sending[this.sendpacketid]=[data,"e",this.sendpacketid];
+		this.sending[this.sendpacketid]=[data,"e",this.sendpacketid,0];
 		else
-		this.sending[this.sendpacketid]=[data,"p",this.sendpacketid];
+		this.sending[this.sendpacketid]=[data,"p",this.sendpacketid,0];
 		
 		
 		if(this.sendpacketid>60000)this.sendpacketid=0;
