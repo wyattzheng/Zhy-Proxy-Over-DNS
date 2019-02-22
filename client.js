@@ -18,8 +18,9 @@ var DNS=
 
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
 //[],
-[["61.47.7.16",0.5],["61.47.33.9",0.5]],
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+[["61.47.7.16",0.25],["61.47.33.9",0.25],["8.8.8.8",0.25],["8.8.4.4",0.25]],
+//[],
+
 [["101.6.6.6",0.5],["63.223.94.66",0.5]],
 
 [["168.95.1.1",0.5],["168.95.192.1",0.5]]
@@ -593,7 +594,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-	//	await sleep(30);
+		await sleep(250);
 
 	
 	
@@ -603,16 +604,21 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		
 	//	console.log("heartbeat");
 	}
-	this.handlemsg=()=>{
+	this.handlemsg=async ()=>{
+		
 			if(!this.clis[0])return false;
 		if(!this.clis[this.nowloc])return false;
 				let next=(this.clis[this.nowloc].server_sendpacketid+1)>60000?0:(this.clis[this.nowloc].server_sendpacketid+1);
+			let sleep=(time)=>{
+			return new Promise((y)=>setTimeout(y,time));
+		}
 		let sent=false;
-			for(let i=next;i<next+3;i++)
+			for(let i=next;i<next+2;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
+			await sleep(250);
 			}
 		return sent;
 	}
@@ -675,8 +681,8 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		 
 		await this.sendheartbeat();	
 	
-		(this.handlemsg())
-	await sleep(1500);
+		await (this.handlemsg())
+	await sleep(250);
 	
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
