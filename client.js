@@ -18,12 +18,12 @@ var DNS=
 
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
 //[],
-[["61.47.7.16",0.25],["61.47.33.9",0.25],["8.8.8.8",0.25],["8.8.4.4",0.25]],
+//
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["101.6.6.6",0.5],["63.223.94.66",0.5]],
 //[],
+//[["61.47.7.16",0.5],["61.47.33.9",0.5]],
 
-[["101.6.6.6",0.5],["63.223.94.66",0.5]],
-
-[["168.95.1.1",0.5],["168.95.192.1",0.5]]
+//[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 
 ];
@@ -34,7 +34,7 @@ var DNS=
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -374,7 +374,7 @@ this.write=function(data){//分段发送
 	{
 		let tosent=[];
 		this.actived=1000;
-		let splitlen=150;
+		let splitlen=300;
 		
 		let partscount=(data.length%splitlen==0)?data.length/splitlen:(parseInt(data.length/splitlen)+1);
 		if(partscount<this.zdnsSET.length)
@@ -585,7 +585,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<2;i++){//预加载
+		for(let i=0;i<4;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -594,7 +594,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-//		await sleep(300);
+		await sleep(200);
 
 	
 	
@@ -613,7 +613,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+3;i++)
+			for(let i=next;i<next+2;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				let times=this.clis[this.nowloc].sending[i][3];
@@ -623,7 +623,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-			//	await sleep(300);
+	//			await sleep(700);
 				}
 			}
 		return sent;
@@ -685,11 +685,14 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	while(true){
 	     this.handletick();
 		 
-		await this.sendheartbeat();	
-	await sleep(600);
-	if(await this.handlemsg())
-	await sleep(1000);
-	
+		if(await this.handlemsg())
+	await sleep(500);
+	else
+	{await this.sendheartbeat();	
+		await sleep(1000);
+
+	}
+		
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
 			this.nowloc=0;
@@ -779,7 +782,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=3;
+this.actived-=5;
 
 
 
