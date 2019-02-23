@@ -623,7 +623,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-	//			await sleep(700);
+				await sleep(200);
 				}
 			}
 		return sent;
@@ -689,7 +689,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	await sleep(500);
 	else
 	{await this.sendheartbeat();	
-		await sleep(1000);
+		await sleep(500);
 
 	}
 		
@@ -782,7 +782,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=10;
 
 
 
