@@ -19,12 +19,10 @@ var DNS=
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
 //[],
 //
-[["101.6.6.6",0.25],["63.223.94.66",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
-
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-
 //[],
-//[["61.47.7.16",0.5],["61.47.33.9",0.5]],
+
+[["101.6.6.6",0.25],["63.223.94.66",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
 
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
@@ -131,6 +129,8 @@ tcp.createServer((req)=>{
 		
 //	new tcpclientoverzdns("proxyoverdns.math.cat",[["8.8.8.8",0.2],["119.29.29.29",0.2],["182.254.116.116",0.2],["9.9.9.9",0.2],["119.28.28.28",0.1],["1.2.4.8",0.1]],(client)=>{
 
+
+			
 		for(var i in except)
 		if(host.ip.substr(-except[i].length,except[i].length)===except[i]||host.ip.indexOf(".")==-1)
 			return;
@@ -376,20 +376,27 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		this.actived=1000;
-		let splitlen=300;
-		
-		let partscount=(data.length%splitlen==0)?data.length/splitlen:(parseInt(data.length/splitlen)+1);
-	//	if(partscount<this.zdnsSET.length)
-		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
+		let splitlen=150;
+		if(data.length<splitlen)
+		{
+			this.write2(data);
+			return;
+		}
+		let partscount=0;
+	
+		for(let i=0;i<=data.length;i+=splitlen)partscount++;
+	
+		for(let i=0;i<this.zdnsSET.length-partscount;i++)
 				tosent.push(Buffer.alloc(0));
 		
 		for(let i=0;i<=data.length;i+=splitlen)
 			tosent.push(data.slice(i,i+splitlen));
-		
+	//console.log(tosent.length,partscount,this.zdnsSET.length);
+	
+	
 		for(var i in tosent)
-		{this.zdnsSET[this.writecount%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
-		this.writecount++;
+		{this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
+	//	this.writecount++;
 		}
 		
 		this.writedataid++;
@@ -597,7 +604,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(200);
+		await sleep(100);
 
 	
 	
@@ -730,7 +737,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		//		delete this.sending[i];
 			
 				     
-				this.actived-=2;
+				this.actived-=10;
 		
 				
 	if(this.actived<=0){
@@ -779,13 +786,13 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //}catch(e){return;}
 	if(pk.answers.length<=0 )return;
 		
-		if(pk.answers[0].data.length<20 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
+		if(pk.answers[0].data.length<50 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
 	
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=10;
 
 
 
@@ -850,7 +857,7 @@ this.actived-=5;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=2000;
+				this.actived=1500;
 	
 			this.recvcallback(Buffer.concat(packets));
 
@@ -867,7 +874,7 @@ this.actived-=5;
 		
 		//if(da.length>50)
 			
-			this.actived=2500;
+	//		this.actived=2500;
 	
 		this.packetcount++;
 
@@ -891,7 +898,7 @@ this.actived-=5;
 			//	console.log(da.length);
 
 
-	this.actived=1000;
+	this.actived=2500;
 
 	let pk=new dnspacket();
 	pk.id=10000+parseInt(Math.random()*10000);
