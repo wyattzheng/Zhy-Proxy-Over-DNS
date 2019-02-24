@@ -376,7 +376,7 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=150;
+		let splitlen=200;
 		if(data.length<splitlen)
 		{
 			this.write2(data);
@@ -792,7 +792,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=10;
+this.actived-=5;
 
 
 
