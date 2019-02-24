@@ -19,7 +19,10 @@ var DNS=
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
 //[],
 //
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["101.6.6.6",0.5],["63.223.94.66",0.5]],
+[["101.6.6.6",0.25],["63.223.94.66",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
+
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+
 //[],
 //[["61.47.7.16",0.5],["61.47.33.9",0.5]],
 
@@ -377,7 +380,7 @@ this.write=function(data){//分段发送
 		let splitlen=300;
 		
 		let partscount=(data.length%splitlen==0)?data.length/splitlen:(parseInt(data.length/splitlen)+1);
-		if(partscount<this.zdnsSET.length)
+	//	if(partscount<this.zdnsSET.length)
 		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
@@ -385,7 +388,7 @@ this.write=function(data){//分段发送
 			tosent.push(data.slice(i,i+splitlen));
 		
 		for(var i in tosent)
-		{this.zdnsSET[this.writecount%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,Buffer.from(tosent[i])));
+		{this.zdnsSET[this.writecount%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
 		this.writecount++;
 		}
 		
@@ -727,7 +730,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		//		delete this.sending[i];
 			
 				     
-				this.actived-=5;
+				this.actived-=2;
 		
 				
 	if(this.actived<=0){
@@ -782,7 +785,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=10;
+this.actived-=5;
 
 
 
@@ -847,7 +850,7 @@ this.actived-=10;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=1000;
+				this.actived=2000;
 	
 			this.recvcallback(Buffer.concat(packets));
 
