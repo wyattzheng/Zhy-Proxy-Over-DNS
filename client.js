@@ -372,7 +372,7 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=200;
+		let splitlen=300;
 		/*if(data.length<splitlen)
 		{
 			this.write2(data);
@@ -594,7 +594,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<4;i++){//预加载
+		for(let i=0;i<3;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -603,7 +603,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(200);
+		await sleep(100);
 
 	
 	
@@ -622,7 +622,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+1;i++)
+			for(let i=next;i<next+2;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				let times=this.clis[this.nowloc].sending[i][3];
@@ -632,7 +632,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-				await sleep(200);
+				await sleep(300);
 				}
 			}
 		return sent;
