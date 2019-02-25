@@ -17,9 +17,9 @@ var DNS=
 
 
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
-
 [["101.6.6.6",0.25],["63.223.94.66",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
-[["8.8.8.8",0.34],["8.8.4.4",0.33],["223.113.97.99",0.33]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 
@@ -248,7 +248,7 @@ function heartbeatManager(DNSset){
 
 function tcpclientoverzdns(domain,hbmanager){
 	
-	this.SETid=10000+parseInt(Math.random()*10000);//"一组"通信桥的1d
+	this.SETid=100000+parseInt(Math.random()*100000);//"一组"通信桥的1d
 	this.zdnsSET=[];//新增多桥支持
 	this.actived=1000;
 	
@@ -372,15 +372,17 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=150;
-		if(data.length<splitlen)
+		let splitlen=200;
+		/*if(data.length<splitlen)
 		{
 			this.write2(data);
 			return;	}
-			
+		*/
 		let partscount=0;
 	
 		for(let i=0;i<=data.length;i+=splitlen)partscount++;
+		
+		
 		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
@@ -391,9 +393,9 @@ this.write=function(data){//分段发送
 	
 	
 		for(var i in tosent)
-		{this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
+		this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
 	//	this.writecount++;
-		}
+		
 	this.writedataid++;
 		
 		
@@ -620,7 +622,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+2;i++)
+			for(let i=next;i<next+1;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				let times=this.clis[this.nowloc].sending[i][3];
@@ -714,7 +716,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(10000000+Math.random()*10000000)+"";
+	this.comid=parseInt(100000+Math.random()*100000)+"";
 	this.domain=domain;
 	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
@@ -881,7 +883,7 @@ this.actived-=10;
 
 		this.sendpacketid++;
 		
-		if(k+100>=da.length)
+		if(k+100>da.length)
 		this.sending[this.sendpacketid]=[data,"e",this.sendpacketid,0];
 		else
 		this.sending[this.sendpacketid]=[data,"p",this.sendpacketid,0];
@@ -915,7 +917,7 @@ this.actived-=10;
 		
 	
 	
-	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l"+this.packetcount+"l"+parseInt(Math.random()*100)+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
+	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l"+this.packetcount+"l"+1+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
 
 	let raw=pk.encode();
 	this.sock.send(raw,0,raw.length,53,dnsserver);

@@ -39,7 +39,7 @@ server.send(pk.encode(),rinfo.port);
 	function encode(buf){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<=res.length;i+=250)
+		for(let i=0;i<res.length;i+=250)
 			ret+=res.substring(i,i+250)+".";
 		
 		return ret;
@@ -50,7 +50,7 @@ server.send(pk.encode(),rinfo.port);
 	function encode2(buf){
 		let res=buf.toString("base64").replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<=res.length;i+=250)
+		for(let i=0;i<res.length;i+=250)
 			ret+=res.substring(i,i+250)+".";
 		return ret;
 		}
@@ -207,7 +207,7 @@ raw=fs.readFileSync("debug.txt");
 		countlen+=d.length;
 
 
-		for(let j=0;j<=d.length;j+=splitlen)
+		for(let j=0;j<d.length;j+=splitlen)
 		pk.answers.push({domain:Buffer.from([192,12]),type:"TXT",class:1,ttl:count,data:encode2(d.slice(j,j+splitlen))})
 
 
@@ -485,8 +485,6 @@ try{
 			//this.zdns.coxx=0;
 					
 			sock.on("data",(dat)=>{
-if(!this.connections[fromset])
-return;
 							let str=(dat+"");
 				if(str.substring(0,4)=="HTTP")
 			console.log("得到数据",str.split("\r\n")[0]);
