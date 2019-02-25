@@ -17,13 +17,9 @@ var DNS=
 
 
 [["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
-//[],
-//
-//[],
 
 [["101.6.6.6",0.25],["63.223.94.66",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-
+[["8.8.8.8",0.34],["8.8.4.4",0.33],["223.113.97.99",0.33]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]]
 
 
@@ -376,21 +372,21 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=300;
+		let splitlen=150;
 		if(data.length<splitlen)
 		{
 			this.write2(data);
-			return;
-		}
+			return;	}
+			
 		let partscount=0;
 	
-		for(let i=0;i<data.length;i+=splitlen)partscount++;
-	
-		for(let i=0;i<=(this.zdnsSET.length-partscount);i++)
+		for(let i=0;i<=data.length;i+=splitlen)partscount++;
+		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
 		for(let i=0;i<=data.length;i+=splitlen)
 			tosent.push(data.slice(i,i+splitlen));
+		
 	//console.log(tosent.length,partscount,this.zdnsSET.length);
 	
 	
@@ -398,8 +394,9 @@ this.write=function(data){//分段发送
 		{this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
 	//	this.writecount++;
 		}
+	this.writedataid++;
 		
-		this.writedataid++;
+		
 		//this.zdnsSET[0].send(encode("send",Buffer.from(data)));
 	console.log("发送数据",data.length,this.ip+":"+this.port,dnsservers);
 	
@@ -587,7 +584,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let encode2=(buf)=>{
 				let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<res.length;i+=45)
+		for(let i=0;i<=res.length;i+=45)
 			ret+=res.substring(i,i+45)+".";		
 		return ret.substr(0,ret.length-1);
 	
@@ -717,7 +714,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(10000+Math.random()*100000)+"";
+	this.comid=parseInt(10000000+Math.random()*10000000)+"";
 	this.domain=domain;
 	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
@@ -753,7 +750,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	function encode(buf,without){
 		let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<res.length;i+=250)
+		for(let i=0;i<=res.length;i+=250)
 			ret+=res.substring(i,i+250)+".";		
 		if(without)
 		return ret.substr(0,ret.length-1);
@@ -792,7 +789,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=10;
+
 
 
 
@@ -878,7 +876,7 @@ this.actived-=5;
 	
 		this.packetcount++;
 
-		for(let k=0;k<da.length;k+=100){
+		for(let k=0;k<=da.length;k+=100){
 		let data=da.slice(k,k+100);
 
 		this.sendpacketid++;
@@ -909,7 +907,7 @@ this.actived-=5;
 		let encode2=(buf)=>{
 				let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<res.length;i+=44)
+		for(let i=0;i<=res.length;i+=44)
 			ret+=res.substring(i,i+44)+".";		
 		return ret.substr(0,ret.length-1);
 	
