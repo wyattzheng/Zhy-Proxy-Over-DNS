@@ -376,7 +376,7 @@ this.write=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=200;
+		let splitlen=300;
 		if(data.length<splitlen)
 		{
 			this.write2(data);
@@ -384,9 +384,9 @@ this.write=function(data){//分段发送
 		}
 		let partscount=0;
 	
-		for(let i=0;i<=data.length;i+=splitlen)partscount++;
+		for(let i=0;i<data.length;i+=splitlen)partscount++;
 	
-		for(let i=0;i<this.zdnsSET.length-partscount;i++)
+		for(let i=0;i<=(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
 		for(let i=0;i<=data.length;i+=splitlen)
@@ -604,7 +604,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(100);
+		await sleep(200);
 
 	
 	
@@ -696,7 +696,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	     this.handletick();
 		 
 		if(await this.handlemsg())
-	await sleep(500);
+	await sleep(200);
 	else
 	{await this.sendheartbeat();	
 		await sleep(500);
@@ -737,7 +737,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		//		delete this.sending[i];
 			
 				     
-				this.actived-=10;
+				this.actived-=5;
 		
 				
 	if(this.actived<=0){
@@ -857,7 +857,7 @@ this.actived-=5;
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=1500;
+				this.actived=2500;
 	
 			this.recvcallback(Buffer.concat(packets));
 
@@ -868,7 +868,7 @@ this.actived-=5;
 		
 		};
 	this.sock.on("message",this.msgcallback);
-	this.actived=1000;
+	this.actived=1500;
 	this.packetcount=0;
 	this.send=(da)=>{
 		
