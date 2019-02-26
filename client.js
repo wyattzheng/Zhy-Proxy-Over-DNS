@@ -11,22 +11,26 @@ var zhybasedecode=base32.decode;
 
 var ZDNSALIVE=0;
 
-var DNS=
+var dnstunnel="proxyoverdns.math.cat";//搭建并设置了NS记录的Zhy-Proxy-Over-DNS服务器
+
+
+var DNS=//使用的公共DNS隧道组集合
+
+//格式:
+/*[
+
+[["DNS1",占用隧道百分比1],["DNS2",占用隧道百分比2],...]  一个隧道组
+[["DNS3",占用隧道百分比1],["DNS4",占用隧道百分比2],...]  一个隧道组
+
+
+...
+
+]*/
 [
-//[["119.29.29.29",1]]
 
-
-//[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
-
-
-//[["178.128.57.53",0],["101.6.6.6",0.5],["63.223.94.66",0.5]],
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-//[["223.113.97.99",0],["208.67.222.220",0.5],["208.67.220.222",0.5]]
-
-
-//[["168.95.1.1",0.5],["168.95.192.1",0.5]]
-
-
+[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
+[["101.6.6.6",0.34],["208.67.222.220",0.33],["208.67.220.222",0.33]],
+[["8.8.8.8",0.25],["8.8.4.4",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
 ];
 //,
 //[["208.67.222.220",0.5],["40.73.101.101",0.5]],
@@ -136,7 +140,7 @@ tcp.createServer((req)=>{
 			return;
 //		if(host.ip!="esu.wiki")return;
 
-	var client=new tcpclientoverzdns("proxyoverdns.math.cat",hbman);
+	var client=new tcpclientoverzdns(dnstunnel,hbman);
 
 			client.connect(host.port,host.ip,(err)=>{
 			req.tunnel=false;
@@ -216,7 +220,7 @@ tcp.createServer((req)=>{
 function heartbeatManager(DNSset){
 	this.heartbeats={};
 	this.DNSset=DNSset;
-	
+	this.ns=0;
 		
 	this.getheartbeat=(dns)=>{
 		if(!this.heartbeats[dns])
@@ -229,6 +233,8 @@ function heartbeatManager(DNSset){
 		return this.heartbeats[dns].getactive();
 	}
 	this.getasetofdns=()=>{//优先获取空闲的DNS组
+	this.ns++;
+	return this.DNSset[this.ns%this.DNSset.length];
 		let sele=[];
 		for(let i=0;i<this.DNSset.length;i++)
 		{
@@ -252,7 +258,7 @@ function heartbeatManager(DNSset){
 
 function tcpclientoverzdns(domain,hbmanager){
 	
-	this.SETid=100000+parseInt(Math.random()*100000);//"一组"通信桥的1d
+	this.SETid=1000000+parseInt(Math.random()*1000000);//"一组"通信桥的1d
 	this.zdnsSET=[];//新增多桥支持
 	this.actived=1000;
 	
@@ -340,9 +346,9 @@ function tcpclientoverzdns(domain,hbmanager){
 		this.partdata={};
 		this.endquests={};
 console.log("开始连接 "+ip+":"+port);
-		
+		try{
 		this.zdnsSET[0].send(encode("connect|"+ip+"|"+port+"|"+comids.join(",")+"|"+this.SETid));	
-		
+		}catch(e){};
 		
 		this.ip=ip;this.port=port;
 		if(!this.connectokcallback)
@@ -369,7 +375,7 @@ console.log("开始连接 "+ip+":"+port);
 	}
 	this.writedataid=0;
 	this.writecount=0;
-
+	
 this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
@@ -380,33 +386,28 @@ this.write=function(data){//分段发送
 		/*if(data.length<splitlen)
 		{
 			this.write2(data);
-			return;	}*/
-		
-			
-		
+			return;
+		}*/
 		let partscount=0;
 	
-		for(let i=0;i<=data.length;i+=splitlen)partscount++;
-		
-		
+		for(let i=0;i<data.length;i+=splitlen)partscount++;
+	
 		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
-		for(let i=0;i<=data.length;i+=splitlen)
+		for(let i=0;i<data.length;i+=splitlen)
 			tosent.push(data.slice(i,i+splitlen));
-		
 	//console.log(tosent.length,partscount,this.zdnsSET.length);
 	
 	
 		for(var i in tosent)
-		this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
+		{this.zdnsSET[i%this.zdnsSET.length].send(encode("s|"+this.writedataid+"|"+i+"|"+tosent.length,(tosent[i])));
 	//	this.writecount++;
+		}
 		
-	this.writedataid++;
-		
-		
+		this.writedataid++;
 		//this.zdnsSET[0].send(encode("send",Buffer.from(data)));
-	console.log("发送数据",data.length,this.ip+":"+this.port,dnsservers);
+	console.log("发送数据",data.length,this.ip+":"+this.port);
 	
 	}
 
@@ -459,11 +460,10 @@ this.write=function(data){//分段发送
 			case "connected":
 	//if(!this.connected){
 			this.connected=true;
-			this.actived=1500;
-			
+			this.actived=1000;
 			this.retrytime=2;
 		
-	console.log(this.ip+":"+this.port+" 连接成功");
+	console.log("连接成功 "+this.ip+":"+this.port);
 	if(this.connectokcallback)
 			this.connectokcallback();
 		//}
@@ -524,7 +524,7 @@ this.write=function(data){//分段发送
 				let fulldata=undefined;
 				//console.log(Object.keys(this.partdatas).length,partscount,partid,dataid);
 				
-					console.log("拼接",dataid,Object.keys(this.partdatas[dataid]).length,partscount,dnsservers);
+					//console.log("拼接",dataid,Object.keys(this.partdatas[dataid]).length,partscount,dnsservers);
 			
 		
 				if(Object.keys(this.partdatas[dataid]).length>=partscount)//所有分块数据已就绪
@@ -537,7 +537,8 @@ this.write=function(data){//分段发送
 					fulldata=Buffer.concat(arr);
 					delete this.partdatas[dataid];
 					
-					console.log(dataid,"拼接成功");
+					//console.log(dataid,"拼接成功");
+					console.log("收到数据",fulldata.length,this.ip+":"+this.port);
 				}
 				
 				
@@ -593,7 +594,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let encode2=(buf)=>{
 				let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
 		let ret="";
-		for(let i=0;i<res.length;i+=45)
+		for(let i=0;i<=res.length;i+=45)
 			ret+=res.substring(i,i+45)+".";		
 		return ret.substr(0,ret.length-1);
 	
@@ -601,7 +602,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<4;i++){//预加载
+		for(let i=0;i<2;i++){//预加载
 		
 		
 		pk.queries=[];
@@ -610,7 +611,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(300);
+		await sleep(100);
 
 	
 	
@@ -629,18 +630,18 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+5;i++)
+			for(let i=next;i<next+2;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				let times=this.clis[this.nowloc].sending[i][3];
 				this.clis[this.nowloc].sending[i][3]=times+1;times++;
 				let calc=(Math.sqrt(1+8*times)-1)/2;
 				
-			if(calc-parseInt(calc)==0){	
+	//	if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
 				await sleep(200);
-				}
+			//}
 			}
 		return sent;
 	}
@@ -701,15 +702,15 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	while(true){
 	     this.handletick();
 		 
-	await this.handlemsg();
-	await sleep(200);
-
-	//else
-//	{
-		await this.sendheartbeat();	
-		await sleep(200);
-
-	//}
+		//if(
+		await this.handlemsg()
+		//)
+	await sleep(100);
+	//else{
+	await this.sendheartbeat();	
+//		await sleep(1000);
+//	}
+	
 		
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
@@ -725,7 +726,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(100000+Math.random()*100000)+"";
+	this.comid=parseInt(10000000+Math.random()*10000000)+"";
 	this.domain=domain;
 	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
@@ -737,7 +738,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.sendpacketid=0;//发送也有一套ID机制
 	this.server_sendpacketid=0;
 	this.sending={};//正在发送
-	var that=this;
+	
 		this.timer=setInterval(()=>{
 			
 		//	for(let i=0;i<this.server_sendpacketid-5;i++)
@@ -749,8 +750,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 		
 				
 	if(this.actived<=0){
-		clearInterval(this.timer);ZDNSALIVE--;console.log("当前通信桥总数量:"+ZDNSALIVE);
-		heartbeat.unmanage(that);
+		clearInterval(this.timer);ZDNSALIVE--;if(ZDNSALIVE%5==0)console.log("当前通信桥总数量:"+ZDNSALIVE);
+		heartbeat.unmanage(this);
 		
 //delete this;
 
@@ -800,8 +801,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=10;
-
+this.actived-=15;
 
 
 
@@ -887,12 +887,12 @@ this.actived-=10;
 	
 		this.packetcount++;
 
-		for(let k=0;k<da.length;k+=100){
+		for(let k=0;k<=da.length;k+=100){
 		let data=da.slice(k,k+100);
 
 		this.sendpacketid++;
 		
-		if(k+100>da.length)
+		if(k+100>=da.length)
 		this.sending[this.sendpacketid]=[data,"e",this.sendpacketid,0];
 		else
 		this.sending[this.sendpacketid]=[data,"p",this.sendpacketid,0];
@@ -926,7 +926,7 @@ this.actived-=10;
 		
 	
 	
-	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l"+this.packetcount+"l"+1+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
+	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l"+this.packetcount+"l"+parseInt(Math.random()*100)+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
 
 	let raw=pk.encode();
 	this.sock.send(raw,0,raw.length,53,dnsserver);
@@ -935,9 +935,11 @@ this.actived-=10;
 	}
 
 	ZDNSALIVE++;
+	if(ZDNSALIVE%5==0)
 	console.log("当前通信桥总数量:"+ZDNSALIVE);
 	
 }
+console.log("欢迎使用 Zhy-Proxy-Over-DNS ,HTTP代理 127.0.0.1:8080 已开放,经过这个代理的流量都会100%纯被公共DNS转发,任何情况下不会与POD服务器直接通信.\n\n请注意通信桥的数量不应过多,否则将超出DNS组的承受力,导致包的迟缓收发,如果你想要更大的承受力,可以自行添加DNS组,越多则承受力越强.\n\n");
 
 /*let cli=(new tcpclientoverzdns("fq.math.cat","127.0.0.1"));
 cli.connect("123.125.115.110",80);
