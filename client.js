@@ -16,11 +16,12 @@ var DNS=
 //[["119.29.29.29",1]]
 
 
-[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
+//[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
 
-[["101.6.6.6",0.5],["63.223.94.66",0.5]],
+
+//[["178.128.57.53",0],["101.6.6.6",0.5],["63.223.94.66",0.5]],
 [["8.8.8.8",0.5],["8.8.4.4",0.5]],
-[["208.67.222.220",0.5],["208.67.220.222",0.5]]
+//[["223.113.97.99",0],["208.67.222.220",0.5],["208.67.220.222",0.5]]
 
 
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]]
@@ -339,9 +340,9 @@ function tcpclientoverzdns(domain,hbmanager){
 		this.partdata={};
 		this.endquests={};
 console.log("开始连接 "+ip+":"+port);
-		try{
+		
 		this.zdnsSET[0].send(encode("connect|"+ip+"|"+port+"|"+comids.join(",")+"|"+this.SETid));	
-		}catch(e){};
+		
 		
 		this.ip=ip;this.port=port;
 		if(!this.connectokcallback)
@@ -368,28 +369,30 @@ console.log("开始连接 "+ip+":"+port);
 	}
 	this.writedataid=0;
 	this.writecount=0;
-	
+
 this.write=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=300;
-		if(data.length<splitlen)
+		let splitlen=323;
+		/*if(data.length<splitlen)
 		{
 			this.write2(data);
-			return;	}
+			return;	}*/
+		
+			
 		
 		let partscount=0;
 	
-		for(let i=0;i<data.length;i+=splitlen)partscount++;
+		for(let i=0;i<=data.length;i+=splitlen)partscount++;
 		
 		
 		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
-		for(let i=0;i<data.length;i+=splitlen)
+		for(let i=0;i<=data.length;i+=splitlen)
 			tosent.push(data.slice(i,i+splitlen));
 		
 	//console.log(tosent.length,partscount,this.zdnsSET.length);
@@ -456,7 +459,8 @@ this.write=function(data){//分段发送
 			case "connected":
 	//if(!this.connected){
 			this.connected=true;
-			this.actived=1000;
+			this.actived=1500;
+			
 			this.retrytime=2;
 		
 	console.log(this.ip+":"+this.port+" 连接成功");
@@ -597,11 +601,11 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		let sleep=(time)=>{
 			return new Promise((y)=>setTimeout(y,time));
 		}
-		for(let i=0;i<3;i++){//预加载
+		for(let i=0;i<4;i++){//预加载
 		
 		
 		pk.queries=[];
-		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(4)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
+		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(6)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
@@ -625,7 +629,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			return new Promise((y)=>setTimeout(y,time));
 		}
 		let sent=false;
-			for(let i=next;i<next+2;i++)
+			for(let i=next;i<next+5;i++)
 			if(this.clis[this.nowloc].sending[i])
 			{
 				let times=this.clis[this.nowloc].sending[i][3];
@@ -635,7 +639,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 			if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-				await sleep(300);
+				await sleep(200);
 				}
 			}
 		return sent;
@@ -697,13 +701,15 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	while(true){
 	     this.handletick();
 		 
-		if(await this.handlemsg())
+	await this.handlemsg();
 	await sleep(200);
-	else
-	{await this.sendheartbeat();	
-		await sleep(500);
 
-	}
+	//else
+//	{
+		await this.sendheartbeat();	
+		await sleep(200);
+
+	//}
 		
 		this.nowloc++;
 		if(this.nowloc>=this.clis.length-1)
@@ -731,7 +737,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.sendpacketid=0;//发送也有一套ID机制
 	this.server_sendpacketid=0;
 	this.sending={};//正在发送
-	
+	var that=this;
 		this.timer=setInterval(()=>{
 			
 		//	for(let i=0;i<this.server_sendpacketid-5;i++)
@@ -744,7 +750,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 				
 	if(this.actived<=0){
 		clearInterval(this.timer);ZDNSALIVE--;console.log("当前通信桥总数量:"+ZDNSALIVE);
-		heartbeat.unmanage(this);
+		heartbeat.unmanage(that);
 		
 //delete this;
 
@@ -794,7 +800,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=5;
+this.actived-=10;
 
 
 
