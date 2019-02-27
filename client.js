@@ -28,9 +28,28 @@ var DNS=//使用的公共DNS隧道组集合
 ]*/
 [
 
-[["119.29.29.29",0.25],["9.9.9.9",0.25],["208.67.220.220",0.25],["208.67.222.222",0.25]],
-[["101.6.6.6",0.34],["208.67.222.220",0.33],["208.67.220.222",0.33]],
-[["8.8.8.8",0.25],["8.8.4.4",0.25],["208.67.222.220",0.25],["208.67.220.222",0.25]],
+//[["119.29.29.29",0.25],["9.9.9.9",0.25],["1.2.4.8",0.25],["210.2.4.8",0.25]],
+//[],
+
+//[["101.6.6.6",0.25],["4.2.2.1",0.25],["168.126.63.1",0.25],["4.2.2.2",0.25]],
+
+
+//[["8.8.8.8",0.25],["8.8.4.4",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
+//[]
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+//[["101.6.6.6",0.5],["9.9.9.9",0.5]],
+//[["168.126.63.1",0.5],["4.2.2.1",0.5]],
+[["119.29.29.29",0.5],["101.6.6.6",0.5]]
+
+
+//[],
+
+
+//[["63.223.94.66",0.12],["64.6.64.6",0.12],["216.146.35.35",0.12],["64.6.65.6",0.25]],
+//[["80.80.80.80",0.5],["80.80.81.81",0.5]],
+//[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+
+
 ];
 //,
 //[["208.67.222.220",0.5],["40.73.101.101",0.5]],
@@ -39,7 +58,7 @@ var DNS=//使用的公共DNS隧道组集合
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -375,8 +394,13 @@ console.log("开始连接 "+ip+":"+port);
 	}
 	this.writedataid=0;
 	this.writecount=0;
+this.write=function(data){
 	
-this.write=function(data){//分段发送
+	for(let i=0;i<data.length;i+=1000)
+		this.writeraw(data.slice(i,i+1000));
+	
+}
+this.writeraw=function(data){//分段发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
@@ -385,14 +409,15 @@ this.write=function(data){//分段发送
 		let splitlen=323;
 		/*if(data.length<splitlen)
 		{
-			this.write2(data);
+			this.writeraw2(data);
 			return;
 		}*/
+		
 		let partscount=0;
 	
 		for(let i=0;i<data.length;i+=splitlen)partscount++;
 	
-		for(let i=0;i<(this.zdnsSET.length-partscount);i++)
+		for(let i=0;i<=(this.zdnsSET.length-partscount);i++)
 				tosent.push(Buffer.alloc(0));
 		
 		for(let i=0;i<data.length;i+=splitlen)
@@ -413,12 +438,12 @@ this.write=function(data){//分段发送
 
 
 	}
-	this.write2=function(data){//直接发送
+	this.writeraw2=function(data){//直接发送
 	//	console.log(Buffer.from(data)+"");
 	//console.log("?");
 	if(this.connected)
 	{
-	this.zdnsSET[0].send(encode("send",Buffer.from(data)));
+	this.zdnsSET[parseInt(Math.random()*(this.zdnsSET.length-1))].send(encode("send",Buffer.from(data)));
 	
 	console.log("发送数据",data.length,this.ip+":"+this.port);
 	
@@ -611,7 +636,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
 	
-		await sleep(100);
+//		await sleep(100);
 
 	
 	
@@ -637,10 +662,10 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 				this.clis[this.nowloc].sending[i][3]=times+1;times++;
 				let calc=(Math.sqrt(1+8*times)-1)/2;
 				
-	//	if(calc-parseInt(calc)==0){	
+		//if(calc-parseInt(calc)==0){	
 				sent=true;
 				this.clis[this.nowloc].dosend(this.clis[this.nowloc].sending[i][0],this.clis[this.nowloc].sending[i][1],i);
-				await sleep(200);
+	//		await sleep(50);
 			//}
 			}
 		return sent;
@@ -693,7 +718,14 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		
 	
 	}
-
+this.speed=200;
+			
+	this.speedup=(v)=>{
+		let nextspeed=this.speed+v;
+		if(nextspeed<200)nextspeed=200;
+		this.speed=nextspeed;
+		
+	}
 
 	this.timer=async ()=>{
 	function sleep(tm){
@@ -702,13 +734,14 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	while(true){
 	     this.handletick();
 		 
-		//if(
+		if(
 		await this.handlemsg()
-		//)
-	await sleep(100);
+		)
+	await sleep(this.speed);
 	//else{
+		
 	await this.sendheartbeat();	
-//		await sleep(1000);
+		await sleep(this.speed);
 //	}
 	
 		
@@ -726,7 +759,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(10000000+Math.random()*10000000)+"";
+	this.comid=parseInt(100000+Math.random()*100000)+"";
 	this.domain=domain;
 	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
@@ -793,7 +826,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //try{		
 		var pk=new dnspacket(msg);
 //}catch(e){return;}
-	if(pk.answers.length<=0 )return;
+	if(pk.answers.length<=0 ){heartbeat.speedup(1);return;}
+		heartbeat.speedup(-5);
 		
 		if(pk.answers[0].data.length<50 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
@@ -801,7 +835,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=15;
+this.actived-=10;
+
 
 
 
@@ -926,7 +961,7 @@ this.actived-=15;
 		
 	
 	
-	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l"+this.packetcount+"l"+parseInt(Math.random()*100)+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
+	pk.queries.push({name:spkid+"l."+this.dnspacketid+"l."+this.comid+"l"+prefix+"l0l"+parseInt(Math.random()*10)+"-"+encode2(partdata)+"."+domain+".",type:"TXT",class:1});
 
 	let raw=pk.encode();
 	this.sock.send(raw,0,raw.length,53,dnsserver);
