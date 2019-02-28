@@ -39,7 +39,7 @@ var DNS=//使用的公共DNS隧道组集合
 [["8.8.8.8",0.5],["8.8.4.4",0.5]],
 [["101.6.6.6",0.5],["9.9.9.9",0.5]],
 [["168.126.63.1",0.5],["4.2.2.1",0.5]],
-[["119.29.29.29",0.5],["101.6.6.6",0.5]]
+[["119.29.29.29",0.5],["101.6.6.6",0.5]],
 
 
 //[],
@@ -252,8 +252,8 @@ function heartbeatManager(DNSset){
 		return this.heartbeats[dns].getactive();
 	}
 	this.getasetofdns=()=>{//优先获取空闲的DNS组
-	this.ns++;
-	return this.DNSset[this.ns%this.DNSset.length];
+	//this.ns++;
+	//return this.DNSset[this.ns%this.DNSset.length];
 		let sele=[];
 		for(let i=0;i<this.DNSset.length;i++)
 		{
@@ -826,8 +826,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //try{		
 		var pk=new dnspacket(msg);
 //}catch(e){return;}
-	if(pk.answers.length<=0 ){heartbeat.speedup(1);return;}
-		heartbeat.speedup(-5);
+	if(pk.answers.length<=0 ){heartbeat.speedup(10);return;}
+		heartbeat.speedup(-50);
 		
 		if(pk.answers[0].data.length<50 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
