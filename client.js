@@ -36,18 +36,21 @@ var DNS=//使用的公共DNS隧道组集合
 
 //[["8.8.8.8",0.25],["8.8.4.4",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
 //[]
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-[["101.6.6.6",0.5],["9.9.9.9",0.5]],
-[["168.126.63.1",0.5],["4.2.2.1",0.5]],
-[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+[["1.2.4.8",0.5],["168.95.1.1",0.5]],[["168.126.63.1",0.5],["168.95.192.1",0.5]],
+[["63.223.94.66",0.5],["4.2.2.2",0.5]],[["210.2.4.8",0.5],["216.146.35.35",0.5]],
+[["168.126.63.1",0.5],["4.2.2.1",0.5]],[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+
+
+
+
 
 
 //[],
 
 
 //[["63.223.94.66",0.12],["64.6.64.6",0.12],["216.146.35.35",0.12],["64.6.65.6",0.25]],
-//[["80.80.80.80",0.5],["80.80.81.81",0.5]],
-//[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+
 
 
 ];
@@ -58,7 +61,7 @@ var DNS=//使用的公共DNS隧道组集合
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com","qpic.cn"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -264,6 +267,7 @@ function heartbeatManager(DNSset){
 			
 			sele.push({index:i,hot:sumactived});
 		}
+				
 		sele.sort((a,b)=>{return a.hot-b.hot});
 		console.log(this.DNSset[sele[0].index]);
 		return this.DNSset[sele[0].index];
@@ -672,28 +676,31 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	}
 	this.getactive=()=>{//获取旗下所有cli的平均热度
 		let sum=0;
-		
+		let clnum=this.clis.length;
 		for(var i in this.tick)
 		switch(this.tick[i].act){
 			case "man":
 			sum+=this.tick[i].to.actived;
+			clnum++;
 			break;
 			case "unm":
 			sum+=this.tick[i].to.actived;
+			clnum--;
 			break;
 			
 		}		
-		
+			
 		for(var i in this.clis)
 			sum+=this.clis[i].actived;
-	
 		
+		/*
 	if(sum)
 		return sum;
 	else
 		return 0;
+	*/
 		
-		return this.clis.length>0?(sum/this.clis.length):0;
+		return sum/(clnum+1);
 	}	
 	 this.manage=(zdns_cli)=>{//管理一个zdns客户端
 		
