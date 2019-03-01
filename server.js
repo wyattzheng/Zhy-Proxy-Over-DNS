@@ -1,7 +1,6 @@
 var httpproxy = require('http-proxy');
 var dnspacket=require("./zdns.js");
 
-
 const dgram = require('dgram'); 
 const tcp = require('net');
 const dns = require('dns');
@@ -108,7 +107,6 @@ try{
 		let expectid=(this.com[comid].sendpacketid+1)>60000?0:(this.com[comid].sendpacketid+1);
 
 		if(!isHeartbeat){
-
 
 		if(sendid!=expectid){
 			/*if(!this.com[comid].sendpacketcache[sendid])

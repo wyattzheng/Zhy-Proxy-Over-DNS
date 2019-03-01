@@ -91,7 +91,7 @@ function dnspacket(raw){
 	//console.log(this.answers);
 	}
 	this.encode=function(){
-	let offset=0;let ret=Buffer.alloc(1024*100);
+	let offset=0;let ret=Buffer.alloc(1024*10);
 	ret.writeUInt16BE(this.id,offset);offset+=2;
 	let flags=0;
 	flags|=this.flag_QR<<15;
@@ -148,13 +148,13 @@ this.answers[i].domain.copy(ret,offset);offset+=this.answers[i].domain.length;
 
 			let ar=this.answers[i].data.split(".");
 			ret.writeUInt16BE(data.length+1,offset);offset+=2;
-
+try{
 			for(var j in ar)
 			{
 			ret.writeUInt8(ar[j].length,offset);offset+=1;
 			let buf=Buffer.from(ar[j]);buf.copy(ret,offset);offset+=buf.length;
 			}
-			
+}catch(e){console.log(this.answers[i].data);process.exit();}			
 		//	data.copy(ret,offset);offset+=data.length;
 	}
 	
@@ -177,4 +177,3 @@ pk.queries.push({name:"test.test.",type:"TXT",class:1});
 console.log(new dnspacket(pk.encode()));
 */
 module.exports=dnspacket;
-

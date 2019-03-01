@@ -36,12 +36,26 @@ var DNS=//使用的公共DNS隧道组集合
 
 //[["8.8.8.8",0.25],["8.8.4.4",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
 //[]
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["140.207.198.6",0.5],["123.125.81.6",0.5]],
-[["1.2.4.8",0.5],["168.95.1.1",0.5]],[["168.126.63.1",0.5],["168.95.192.1",0.5]],
-[["63.223.94.66",0.5],["4.2.2.2",0.5]],[["210.2.4.8",0.5],["216.146.35.35",0.5]],
-[["168.126.63.1",0.5],["4.2.2.1",0.5]],[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+[["1.2.4.8",0.5],["168.95.1.1",0.5]],
+[["168.126.63.1",0.5],["168.95.192.1",0.5]],
+[["63.223.94.66",0.5],["4.2.2.2",0.5]],
+[["210.2.4.8",0.5],["216.146.35.35",0.5]],
+[["168.126.63.1",0.5],["4.2.2.1",0.5]],
+[["119.29.29.29",0.5],["101.6.6.6",0.5]],
 
 
+/*
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+*/
 
 
 
@@ -400,8 +414,8 @@ console.log("开始连接 "+ip+":"+port);
 	this.writecount=0;
 this.write=function(data){
 	
-	for(let i=0;i<data.length;i+=1000)
-		this.writeraw(data.slice(i,i+1000));
+	for(let i=0;i<data.length;i+=this.zdnsSET.length*300)
+		this.writeraw(data.slice(i,i+this.zdnsSET.length*300));
 	
 }
 this.writeraw=function(data){//分段发送
@@ -415,8 +429,8 @@ this.writeraw=function(data){//分段发送
 		{
 			this.writeraw2(data);
 			return;
-		}*/
-		
+		}
+		*/
 		let partscount=0;
 	
 		for(let i=0;i<data.length;i+=splitlen)partscount++;
@@ -618,7 +632,6 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		if(!this.clis[this.nowloc])return;
 	//console.log("heartbeat",this.clis[0].comid)
 		let pk=new dnspacket();
-	pk.id=10000+parseInt(Math.random()*10000);
 			pk.flag_RD=1;
 		let encode2=(buf)=>{
 				let res=zhybaseencode(buf).replace(/\//g,"-").replace(/=/g,"_");
@@ -633,7 +646,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		}
 		for(let i=0;i<2;i++){//预加载
 		
-		
+		pk.id=10000+parseInt(Math.random()*10000);
 		pk.queries=[];
 		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(6)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
@@ -833,8 +846,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 //try{		
 		var pk=new dnspacket(msg);
 //}catch(e){return;}
-	if(pk.answers.length<=0 ){heartbeat.speedup(10);return;}
-		heartbeat.speedup(-50);
+	if(pk.answers.length<=0 ){heartbeat.speedup(100);return;}
+		heartbeat.speedup(-200);
 		
 		if(pk.answers[0].data.length<50 &&  (pk.answers[0].data+"").substr(0,15)=="I ALWAYS EXIST.")
 		isHeartbeat=true;
