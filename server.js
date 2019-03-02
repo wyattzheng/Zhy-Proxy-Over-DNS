@@ -504,7 +504,7 @@ for(let i=0;i<=dat.length;i+=512*this.SETs[fromset].length)
 this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
 
 
-			};
+			});
 //				sock.dataid=0;
 //				sock.endid=0;
 				this.connections[fromset]=sock;
@@ -515,7 +515,7 @@ this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
 
 		}
 
-			});
+			};
 			
 			if(/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(domainname))
 				cb("",[domainname])
