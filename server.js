@@ -57,10 +57,15 @@ server.send(pk.encode(),rinfo.port);
 	this.recv=(callback)=>{
 		this.recvcallback=callback;
 	}
+	this.gctimer=setInterval(()=>{
+		for(var i in this.com)
+		{if(this.com[i].live<0)
+		delete this.com[i];
+else
+this.com[i].live--;}
+	},1000);
 	this.handlemessage=(msg,r)=>{
-try{
 	var pk=new dnspacket(msg);
-}catch(e){}
 	if(pk.queries.length>0)
 	{
 			
@@ -73,7 +78,8 @@ try{
 		let comdata=queryname.substring(0,floc).split("l");
 		let sendid=parseInt(comdata[0]);let askid=parseInt(comdata[1]);let comid=parseInt(comdata[2]);let msgkind=comdata[3];let msgid=comdata[4];
 
-		if(!this.com[comid])this.com[comid]={info:r,msgs:[],message:Buffer.alloc(0),dnspacketid:0,sendpacketid:0,sendpacketcache:{},packetqueue:{}};
+		if(!this.com[comid])this.com[comid]={info:r,msgs:[],message:Buffer.alloc(0),dnspacketid:0,sendpacketid:0,sendpacketcache:{},packetqueue:{},live:100};
+		this.com[comid].live=100;
 
 
 		let data=decode(queryname.substring(floc+1,queryname.length));
@@ -245,8 +251,10 @@ raw=fs.readFileSync("debug.txt");
 
 try{
 	if(this.com[comid])
-
+{
 		this.com[comid].msgs.push(data);
+		this.com[comid].live=100;
+}
 }catch(e){console.log(comid);process.exit()}
 		this.buildpacket();
 	}
@@ -276,8 +284,8 @@ if(this.connections[i].Timeout){
 	//	this.connections[i].Timeout-=1000;
 		if(this.connections[i].Timeout<=0){
 	//		this.zdns.send(i,encode("end"));
-this.connections[i].destroy();
-delete this.connections[i];
+//this.connections[i].destroy();
+//delete this.connections[i];
 
 		}	
 			
@@ -313,30 +321,33 @@ delete this.connections[i];
 
 				let splitat=260;
 
-				let partid=0;let partcounts=(dat.length/splitat==0)?parseInt(dat.length/splitat):(parseInt(dat.length/splitat)+1);
+				let partid=0;let partcounts=0;
 
+				for(var i=0;i<=dat.length;i+=splitat)partcounts++;
 				let besent=[];
 
-				if(partcounts<=this.SETs[set].length)
-				for(var i=0;i<=(this.SETs[set].length);i++)
+				if(partcounts<this.SETs[set].length)
+				for(var i=0;i<(this.SETs[set].length-partcounts);i++)
 				{besent.push(Buffer.alloc(0));
-				partcounts++;
 				}
 
 				for(var i=0;i<=dat.length;i+=splitat)
 				{
 					let part=dat.slice(i,i+splitat);
-				//	this.zdns.send(id,encode("data",part));
 					besent.push(part);
 				}
 
 
 				for(var i in besent)
 				{
-					let target=this.SETsINFO[set].selector(partcounts,i);
+					let target;
+				if(i<this.SETs[set].length)
+					target=this.SETs[set][i%this.SETs[set].length].id;
+			else
+					target=this.SETsINFO[set].selector(besent.length,i);
 
 					this.zdns.send(target
-							,encode("d|"+i+"|"+besent.length+"|"+this.SETsINFO[set].dataid+"|"+target,besent[i]))
+							,encode("d|"+i+"|"+besent.length+"|"+this.SETsINFO[set].dataid+"|0",besent[i]))
 		//			console.log(this.SETsINFO[fromset].dataid,partcounts,i);
 				}
 
@@ -373,18 +384,18 @@ delete this.connections[i];
 			for(var u in that.SETs[setid])
 				{
 				let cu=parseFloat(that.SETs[setid][u].support).toFixed(2)*100;
-				for(let j=0;j<=cu;j++)
+				for(let j=0;j<cu;j++)
 					pool.push(that.SETs[setid][u].id);
 				}
 
 				let lo=parseInt(Math.random()*100);
                                 let ret=pool[lo];
 
-				if(pid<bs){
+				/*if(pid<bs){
 					ret=that.SETs[setid][that.SETsINFO[setid].count2%bs].id;
 					that.SETsINFO[setid].count2++;
 
-				}
+				}*/
 			//console.log(that.SETsINFO[setid].count2,bs,that.SETs[setid][that.SETsINFO[setid].count2%bs])
                                 that.SETsINFO[setid].count++;
 
@@ -443,7 +454,7 @@ try{
 try{
 			let sock=new tcp.Socket();
 			sock.Timeout=5000;
-				sock.on("timeout",()=>{delete this.connections[fromset];});
+		//		sock.on("timeout",()=>{delete this.connections[fromset];});
 			sock.on("error",()=>{this.zdns.send(id,encode("end"));delete this.connections[fromset];});
 
 			sock.connect(port,ip,()=>{
@@ -460,7 +471,7 @@ try{
 		console.log("连接成功",arr);
 				sock.Timeout=99999999999;
 				sock.on("close",()=>{
-		//	this.zdns.send(id,encode("end"));
+		//this.zdns.send(id,encode("end"));
 		//	console.log("连接关闭",this.connections[id].address().address+":"+this.connections[id].address().port);
 
 			delete this.connections[fromset];
@@ -483,6 +494,7 @@ try{
 			//this.zdns.coxx=0;
 					
 			sock.on("data",(dat)=>{
+			if(!this.connections[fromset])return;
 							let str=(dat+"");
 				if(str.substring(0,4)=="HTTP")
 			console.log("得到数据",str.split("\r\n")[0]);

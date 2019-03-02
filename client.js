@@ -44,7 +44,11 @@ var DNS=//使用的公共DNS隧道组集合
 [["210.2.4.8",0.5],["216.146.35.35",0.5]],
 [["168.126.63.1",0.5],["4.2.2.1",0.5]],
 [["119.29.29.29",0.5],["101.6.6.6",0.5]],
-
+/*,
+[],
+[],
+[],
+*/
 
 /*
 [["178.128.57.53",0.5],["178.128.57.53",0.5]],
@@ -424,7 +428,7 @@ this.writeraw=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=323;
+		let splitlen=data.length/this.zdnsSET.length+10;
 		/*if(data.length<splitlen)
 		{
 			this.writeraw2(data);
@@ -855,7 +859,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-this.actived-=10;
+this.actived-=15;
 
 
 
