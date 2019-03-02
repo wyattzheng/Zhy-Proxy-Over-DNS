@@ -173,11 +173,14 @@ tcp.createServer((req)=>{
 		
 //	new tcpclientoverzdns("proxyoverdns.math.cat",[["8.8.8.8",0.2],["119.29.29.29",0.2],["182.254.116.116",0.2],["9.9.9.9",0.2],["119.28.28.28",0.1],["1.2.4.8",0.1]],(client)=>{
 
-
-			
+		let isIP=/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(host.ip);
+		let isDomain=/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(host.ip)
+		
 		for(var i in except)
 		if(host.ip.substr(-except[i].length,except[i].length)===except[i]||host.ip.indexOf(".")==-1)
 			return;
+		if(isIP && isDomain)return;
+		if(!isDomain)return;
 //		if(host.ip!="esu.wiki")return;
 
 	var client=new tcpclientoverzdns(dnstunnel,hbman);
