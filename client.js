@@ -388,7 +388,11 @@ function tcpclientoverzdns(domain,hbmanager){
 		this.endquests={};
 console.log("开始连接 "+ip+":"+port);
 		try{
+		for(var i in this.zdnsSET)
+			this.zdnsSET[i].active();
+		
 		this.zdnsSET[0].send(encode("connect|"+ip+"|"+port+"|"+comids.join(",")+"|"+this.SETid));	
+		
 		}catch(e){};
 		
 		this.ip=ip;this.port=port;
@@ -417,6 +421,9 @@ console.log("开始连接 "+ip+":"+port);
 	this.writedataid=0;
 	this.writecount=0;
 this.write=function(data){
+	for(var i in this.zdnsSET)
+	this.zdnsSET[i].active();
+		
 	
 	for(let i=0;i<data.length;i+=this.zdnsSET.length*300)
 		this.writeraw(data.slice(i,i+this.zdnsSET.length*300));
@@ -796,6 +803,9 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.server_sendpacketid=0;
 	this.sending={};//正在发送
 	
+	this.active=()=>{
+		this.actived=2500;
+	}
 		this.timer=setInterval(()=>{
 			
 		//	for(let i=0;i<this.server_sendpacketid-5;i++)
@@ -925,8 +935,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			
 			}
 		//	console.log(Buffer.concat(packets)+"")
-				this.actived=2500;
-	
+			this.active();
 			this.recvcallback(Buffer.concat(packets));
 
 		}
@@ -941,8 +950,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.send=(da)=>{
 		
 		if(da.length>50)	
-			this.actived=2500;
-	
+			this.active();
+				
 		this.packetcount++;
 
 		for(let k=0;k<=da.length;k+=100){
@@ -965,8 +974,8 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			//	console.log(da.length);
 
 
-	this.actived=2500;
-
+		this.active();
+			
 	let pk=new dnspacket();
 	pk.id=10000+parseInt(Math.random()*10000);
 	
