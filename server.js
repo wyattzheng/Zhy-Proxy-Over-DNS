@@ -447,7 +447,7 @@ try{
 
 		//	sock.setTimeout(sock.Timeout);
 		console.log("尝试连接",arr);
-			dns.resolve4(domainname,(err,r)=>{
+		let cb=(err,r)=>{
 		if(r){
 
 			ip=r[0];
@@ -504,7 +504,12 @@ for(let i=0;i<=dat.length;i+=512*this.SETs[fromset].length)
 this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
 
 
-			});
+			};
+			
+			if(/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(domainname))
+				cb("",[domainname])
+			else
+			dns.resolve4(domainname,cb);
 
 //				sock.dataid=0;
 //				sock.endid=0;
