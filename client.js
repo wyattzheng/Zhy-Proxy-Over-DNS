@@ -382,7 +382,8 @@ function tcpclientoverzdns(domain,hbmanager){
 		for(var c in this.zdnsSET)
 			comids.push(this.zdnsSET[c].comid+":"+this.zdnsSET[c].support);
 		
-		if(!this.connected){
+		//if(!this.connected){
+			
 		this.writecount=0;
 		this.partdata={};
 		this.endquests={};
@@ -398,7 +399,7 @@ console.log("开始连接 "+ip+":"+port);
 		this.ip=ip;this.port=port;
 		if(!this.connectokcallback)
 			this.connectokcallback=ok;
-		}
+	//	}
 	}
 	this.close=function(withoutcallback){
 		for(let i=0;i<this.zdnsSET.length;i++)
