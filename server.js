@@ -505,12 +505,6 @@ this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
 
 
 			};
-			
-			if(/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(domainname))
-				cb("",[domainname])
-			else
-			dns.resolve4(domainname,cb);
-
 //				sock.dataid=0;
 //				sock.endid=0;
 				this.connections[fromset]=sock;
@@ -523,7 +517,11 @@ this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
 
 			});
 			
-		
+			if(/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(domainname))
+				cb("",[domainname])
+			else
+			dns.resolve4(domainname,cb);
+
 			break;
 			case "send":
 			let ar=ret.action.split("|");let donm=ar[1];let po=parseInt(ar[2])+0;	
