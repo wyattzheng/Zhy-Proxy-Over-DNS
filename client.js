@@ -859,7 +859,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-		this.actived-=15};
+		this.actived-=15;
 
 
 
