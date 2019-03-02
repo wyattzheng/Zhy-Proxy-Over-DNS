@@ -472,7 +472,7 @@ try{
 				sock.Timeout=99999999999;
 				sock.on("close",()=>{
 		this.zdns.send(this.SETs[fromset][0].id,encode("end"));
-			console.log("连接关闭",this.connections[fromset].address().address+":"+this.connections[fromset].address().port);
+//			console.log("连接关闭",this.connections[fromset].address().address+":"+this.connections[fromset].address().port);
 
 			delete this.connections[fromset];
 			
