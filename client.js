@@ -79,7 +79,7 @@ var DNS=//使用的公共DNS隧道组集合
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com","qpic.cn"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com","qpic.cn","clients1.google.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -429,8 +429,8 @@ this.write=function(data){
 	this.zdnsSET[i].active();
 		
 	
-	for(let i=0;i<data.length;i+=this.zdnsSET.length*300)
-		this.writeraw(data.slice(i,i+this.zdnsSET.length*300));
+	for(let i=0;i<data.length;i+=this.zdnsSET.length*600)
+		this.writeraw(data.slice(i,i+this.zdnsSET.length*600));
 	
 }
 this.writeraw=function(data){//分段发送
