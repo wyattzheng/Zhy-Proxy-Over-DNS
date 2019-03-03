@@ -170,7 +170,7 @@ tcp.createServer((req)=>{
 		if(!isDomain)return;
 //		if(host.ip!="esu.wiki")return;
 
-	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:300});
+	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:undefined});
 
 			client.connect(host.port,host.ip,(err)=>{
 			req.tunnel=false;
@@ -289,7 +289,7 @@ function heartbeatManager(DNSset){
 
 function tcpclientoverzdns(domain,hbmanager,config){
 	
-	this.SETid=1000000+parseInt(Math.random()*1000000);//"一组"通信桥的1d
+	this.SETid=100000+parseInt(Math.random()*1000000);//"一组"通信桥的1d
 	this.zdnsSET=[];//新增多桥支持
 	this.actived=1000;
 	this.zdnslimit=config.dnspacketid_limit;
@@ -654,7 +654,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		}
 		for(let i=0;i<2;i++){//预加载
 		
-		pk.id=10000+parseInt(Math.random()*10000);
+		pk.id=10000+parseInt(Math.random()*50000);
 		pk.queries=[];
 		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(10)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
@@ -738,12 +738,11 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		switch(task.act){
 			case "man":
 			this.clis.push(task.to);
-		//	debugger_.add(task.to);
+			//debugger_.add(task.to);
 			break;
 			case "unm":
 			this.clis.splice(this.clis.indexOf(task.to),1);
-		//	debugger_.remove(task.to);
-		
+			//debugger_.remove(task.to);
 			break;
 			
 		}
@@ -793,7 +792,7 @@ function zdns_client(domain,dnsserver,heartbeat,dnspacketlimit){//heartbeat->需
 
 	heartbeat.manage(this);
 	
-	this.comid=parseInt(100000+Math.random()*100000)+"";
+	this.comid=parseInt(100000+Math.random()*1000000)+"";
 	this.domain=domain;
 	this.sock=dgram.createSocket('udp4',5);
 	//sock.setEncoding("binary");
@@ -873,7 +872,7 @@ function zdns_client(domain,dnsserver,heartbeat,dnspacketlimit){//heartbeat->需
 	
 		if(isHeartbeat){
 			
-		this.actived-=25;
+		this.actived-=10;
 
 
 
@@ -983,7 +982,7 @@ function zdns_client(domain,dnsserver,heartbeat,dnspacketlimit){//heartbeat->需
 		this.active();
 			
 	let pk=new dnspacket();
-	pk.id=10000+parseInt(Math.random()*10000);
+	pk.id=10000+parseInt(Math.random()*50000);
 	
 	//pk.queries[0].class=this.dnspacketid;
 	
