@@ -36,34 +36,22 @@ var DNS=//使用的公共DNS隧道组集合
 
 //[["8.8.8.8",0.25],["8.8.4.4",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
 //[]
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],
-[["140.207.198.6",0.5],["123.125.81.6",0.5]],
-[["1.2.4.8",0.5],["168.95.1.1",0.5]],
-[["168.126.63.1",0.5],["168.95.192.1",0.5]],
-[["63.223.94.66",0.5],["4.2.2.2",0.5]],
-[["210.2.4.8",0.5],["216.146.35.35",0.5]],
-[["168.126.63.1",0.5],["4.2.2.1",0.5]],
-[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+[["1.2.4.8",0.5],["168.95.1.1",0.5]],[["168.126.63.1",0.5],["168.95.192.1",0.5]],
+[["63.223.94.66",0.5],["4.2.2.2",0.5]],[["210.2.4.8",0.5],["216.146.35.35",0.5]],
+[["168.126.63.1",0.5],["4.2.2.1",0.5]],[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+
 /*,
 [],
 [],
 [],
 */
-
 /*
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
-[["178.128.57.53",0.5],["178.128.57.53",0.5]],
+[["8.8.8.8",1]],[["8.8.4.4",1]],[["140.207.198.6",1]],[["123.125.81.6",1]],
+[["1.2.4.8",1]],[["168.95.1.1",1]],[["168.126.63.1",1]],[["168.95.192.1",1]],
+[["63.223.94.66",1]],[["4.2.2.2",1]],[["210.2.4.8",1]],[["216.146.35.35",1]],
+[["168.126.63.1",1]],[["4.2.2.1",1]],[["119.29.29.29",1]],[["101.6.6.6",1]]
 */
-
-
-
-
 //[],
 
 
@@ -74,7 +62,6 @@ var DNS=//使用的公共DNS隧道组集合
 ];
 //,
 //[["208.67.222.220",0.5],["40.73.101.101",0.5]],
-
 //[["223.113.97.99",0.5],["119.29.29.29",0.5]],
 //[["63.223.94.66",0.5],["40.73.101.101",0.5]],
 //[["168.95.1.1",0.5],["168.95.192.1",0.5]],
@@ -183,7 +170,7 @@ tcp.createServer((req)=>{
 		if(!isDomain)return;
 //		if(host.ip!="esu.wiki")return;
 
-	var client=new tcpclientoverzdns(dnstunnel,hbman);
+	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:300});
 
 			client.connect(host.port,host.ip,(err)=>{
 			req.tunnel=false;
@@ -300,19 +287,19 @@ function heartbeatManager(DNSset){
 	
 }
 
-function tcpclientoverzdns(domain,hbmanager){
+function tcpclientoverzdns(domain,hbmanager,config){
 	
 	this.SETid=1000000+parseInt(Math.random()*1000000);//"一组"通信桥的1d
 	this.zdnsSET=[];//新增多桥支持
 	this.actived=1000;
+	this.zdnslimit=config.dnspacketid_limit;
 	
 	var dnsservers=hbmanager.getasetofdns();
 	
 	
 	for(var i in dnsservers)
 	{
-		
-		let cli=new zdns_client(domain,dnsservers[i][0],hbmanager.getheartbeat(dnsservers[i][0]));
+		let cli=new zdns_client(domain,dnsservers[i][0],hbmanager.getheartbeat(dnsservers[i][0]),this.zdnslimit);
 		
 		cli.support=dnsservers[i][1];
 		this.zdnsSET.push(cli);
@@ -341,8 +328,10 @@ function tcpclientoverzdns(domain,hbmanager){
 	this.retrytime=2;
 		
 	
-	
-	this.gctimer=	setInterval(()=>{
+	this.set_dnspacketid_limit=(lim)=>{
+		this.zdnslimit=lim;
+	}
+	this.gctimer=setInterval(()=>{
 		if(this.actived<=0)return;
 		let dead=false;
 		for(var i in this.zdnsSET)
@@ -439,7 +428,7 @@ this.writeraw=function(data){//分段发送
 	if(this.connected)
 	{
 		let tosent=[];
-		let splitlen=data.length/this.zdnsSET.length+10;
+		let splitlen=data.length/this.zdnsSET.length+20;
 		/*if(data.length<splitlen)
 		{
 			this.writeraw2(data);
@@ -629,12 +618,15 @@ this.writeraw=function(data){//分段发送
 }
 
 
+//var debugger_=new zdnsDebugger_c();
+
 
 function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 	this.nowloc=0;
 	this.clis=[];
 	
 	this.tick=[];
+	
 	this.sendheartbeat=async ()=>{
 		let randStr=(len)=>{
 			let str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -645,6 +637,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		}
 		if(!this.clis[0])return;
 		if(!this.clis[this.nowloc])return;
+		
 	//console.log("heartbeat",this.clis[0].comid)
 		let pk=new dnspacket();
 			pk.flag_RD=1;
@@ -663,7 +656,7 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		
 		pk.id=10000+parseInt(Math.random()*10000);
 		pk.queries=[];
-		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(6)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
+		pk.queries.push({name:"HBl."+(this.clis[this.nowloc].dnspacketid+i)+"l."+this.clis[this.nowloc].comid+"lel"+this.clis[this.nowloc].packetcount+"l"+parseInt(Math.random()*1)+"-"+encode2(Buffer.from("zhb~."+randStr(10)+"."))+"."+this.clis[this.nowloc].domain+".",type:"TXT",class:1});
 		let raw=pk.encode();
 		this.clis[this.nowloc].sock.send(raw,0,raw.length,53,dnsip);
 	
@@ -731,11 +724,12 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		return sum/(clnum+1);
 	}	
 	 this.manage=(zdns_cli)=>{//管理一个zdns客户端
-		
-			 this.tick.push({act:"man",to:zdns_cli});
-	 }
+			 
+			this.tick.push({act:"man",to:zdns_cli});
+	}
 	 this.unmanage=(zdns_cli)=>{//脱离管理
 		 this.tick.push({act:"unm",to:zdns_cli});
+		 	 
 	 }
 
 	this.handletick=()=>{
@@ -744,9 +738,12 @@ function heartbeat(dnsip){//心跳类,实质上是zdns的统一接收器
 		switch(task.act){
 			case "man":
 			this.clis.push(task.to);
+		//	debugger_.add(task.to);
 			break;
 			case "unm":
 			this.clis.splice(this.clis.indexOf(task.to),1);
+		//	debugger_.remove(task.to);
+		
 			break;
 			
 		}
@@ -781,7 +778,7 @@ this.speed=200;
 	
 		
 		this.nowloc++;
-		if(this.nowloc>=this.clis.length-1)
+		if(this.nowloc>=this.clis.length)
 			this.nowloc=0;
 		
 		
@@ -790,8 +787,10 @@ this.speed=200;
 	this.timer();
 			
 }
-function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运作
-	
+function zdns_client(domain,dnsserver,heartbeat,dnspacketlimit){//heartbeat->需要一个心跳才能运作
+	//这里对参数dnspacketlimit作解释,如果dnspacketid大于dnspacketlimit,将强制终止连接,因为考虑到网页中如果对一个巨大的图片进行请求,通信桥将永远堵塞直到图片加载完毕.
+	//不填或者设为undefined则为不限制,如果你的DNS组数量足够大,理论上不需要设置dnspacketlimit
+
 	heartbeat.manage(this);
 	
 	this.comid=parseInt(100000+Math.random()*100000)+"";
@@ -808,6 +807,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	this.sending={};//正在发送
 	
 	this.active=()=>{
+		if(this.actived>0)
 		this.actived=2500;
 	}
 		this.timer=setInterval(()=>{
@@ -873,7 +873,7 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	
 		if(isHeartbeat){
 			
-		this.actived-=15;
+		this.actived-=25;
 
 
 
@@ -905,9 +905,11 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 			
 			return;}
 		
-		this.dnspacketid++;if(this.dnspacketid>60000)this.com[this.comid].dnspacketid=0;
-
-	
+		this.dnspacketid++;if(this.dnspacketid>60000)this.dnspacketid=0;
+		
+		if(dnspacketlimit)
+		if(this.dnspacketid>dnspacketlimit)this.close();
+		
 	//		console.log(pk.answers);
 	
 //		console.log(decode(pk.answers[0].data.slice(0,pk.answers[0].data.length-1).toString()));
@@ -1010,6 +1012,33 @@ function zdns_client(domain,dnsserver,heartbeat){//需要一个心跳才能运�
 	console.log("当前通信桥总数量:"+ZDNSALIVE);
 	
 }
+
+function zdnsDebugger_c(){
+	var fs=require("fs");
+	this.zdnscs=[];
+	this.debuggerid=(new Date()).getTime();
+	this.add=(c)=>{
+		this.zdnscs.push(c);
+	}
+	this.remove=(c)=>{
+		this.zdnscs.splice(this.zdnscs.indexOf(c),1);
+	
+	}
+	this.timer=setInterval(()=>{
+	//console.log("\033[2J");
+	let debuginfo="";
+		for(var i in this.zdnscs)
+	debuginfo+="comid:"+this.zdnscs[i].comid+" dnspacketid:"+this.zdnscs[i].dnspacketid+" sendpacketid:"+this.zdnscs[i].sendpacketid+" actived:"+this.zdnscs[i].actived+"\r\n";
+try{
+	fs.writeFileSync("debug.txt",debuginfo);
+		
+}catch(e){}
+	
+	},200);
+	
+}
+
+
 console.log("欢迎使用 Zhy-Proxy-Over-DNS ,HTTP代理 127.0.0.1:8080 已开放,经过这个代理的流量都会100%纯被公共DNS转发,任何情况下不会与POD服务器直接通信.\n\n请注意通信桥的数量不应过多,否则将超出DNS组的承受力,导致包的迟缓收发,如果你想要更大的承受力,可以自行添加DNS组,越多则承受力越强.\n\n");
 
 /*let cli=(new tcpclientoverzdns("fq.math.cat","127.0.0.1"));
