@@ -170,7 +170,7 @@ tcp.createServer((req)=>{
 		if(!isDomain)return;
 //		if(host.ip!="esu.wiki")return;
 
-	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:undefined});
+	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:500});
 
 			client.connect(host.port,host.ip,(err)=>{
 			req.tunnel=false;
