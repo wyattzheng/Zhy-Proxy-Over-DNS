@@ -309,7 +309,7 @@ if(this.connections[i].Timeout){
 		let set=rawinfo.s;
 		
 		
-		await rz.lzma_comp(raw).then((dat)=>{
+		await rz.gzip(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
 		
