@@ -10,12 +10,14 @@ this.rid=0;
 this.BrotliCompress=(raw)=>{
 this.id++;
 var nowid=this.id;
+
 return new Promise((y)=>{
 zlib.brotliCompress(raw,{},(err,msg)=>{
 	
 this.rid++;
 var nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
+	
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err || raw.length<1024)y(raw);else y(msg);}},10);});
 
 
 });
@@ -28,10 +30,11 @@ this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
 zlib.brotliDecompress(raw,{},(err,msg)=>{
-	
+
+	console.log(err,msg,raw.length);
 this.rid++;
 var nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err ||msg.length==0)y(raw);else y(msg);}},10);});
 
 
 });
