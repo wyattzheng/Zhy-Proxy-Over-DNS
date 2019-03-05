@@ -318,7 +318,7 @@ if(this.connections[i].Timeout){
 	var rz=new rzlib();//reliable zlib
 	
 	this.send=(set,raw)=>{
-		rz.gzip(raw).then((dat)=>{
+		rz.lzma_comp(raw).then((dat)=>{
 		
 				if(this.connections[set]){
 				this.connections[set].Timeout=5000;
@@ -505,8 +505,8 @@ try{
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
-for(let i=0;i<=dat.length;i+=4096*this.SETs[fromset].length)			
-this.send(fromset,dat.slice(i,i+4096*this.SETs[fromset].length));
+for(let i=0;i<=dat.length;i+=8192*this.SETs[fromset].length)			
+this.send(fromset,dat.slice(i,i+8192*this.SETs[fromset].length));
 
 
 			});

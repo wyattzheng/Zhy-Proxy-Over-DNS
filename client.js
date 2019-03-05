@@ -564,11 +564,14 @@ this.writeraw=function(data){//分段发送
 						arr[i]=this.partdatas[dataid][i];
 					
 					let conc=Buffer.concat(arr);
-					rz.gunzip(conc).then((fulldata)=>{
+					rz.lzma_decomp(conc).then((fulldata)=>{
 				
 					delete this.partdatas[dataid];
 					
 					//console.log(dataid,"拼接成功");
+					if(fulldata.length==conc.length)
+					console.log("收到数据",fulldata.length,this.ip+":"+this.port);	
+					else
 					console.log("收到数据",fulldata.length,"<- "+conc.length,this.ip+":"+this.port);
 					
 					if(this.callback)
