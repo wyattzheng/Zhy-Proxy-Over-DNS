@@ -102,11 +102,11 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);
 
 }
 
-(async()=>{
+/*(async()=>{
 let rz=new rzlib();
 for(let i=0;i<100;i++)
 await rz.lzma_comp(Buffer.from("....sad.")).then(rz.lzma_decomp).then((m)=>console.log(m))
 	
-})();
+})();*/
 
 module.exports=rzlib;
