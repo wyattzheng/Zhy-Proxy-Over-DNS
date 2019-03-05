@@ -11,7 +11,8 @@ this.BrotliCompress=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
-zlib.BrotliCompress(raw,(err,msg)=>{
+zlib.brotliCompress(raw,{},(err,msg)=>{
+	
 this.rid++;
 var nowrid=this.rid;
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
@@ -26,7 +27,8 @@ this.BrotliDecompress=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
-zlib.BrotliDecompress(raw,(err,msg)=>{
+zlib.brotliDecompress(raw,(err,msg)=>{
+	
 this.rid++;
 var nowrid=this.rid;
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
@@ -132,11 +134,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);
 
 }
 
-/*(async()=>{
-let rz=new rzlib();
-for(let i=0;i<100;i++)
-await rz.lzma_comp(Buffer.from("....sad.")).then(rz.lzma_decomp).then((m)=>console.log(m))
-	
-})();*/
+//let rz=new rzlib();rz.BrotliCompress(Buffer.from("....sad.")).then(rz.BrotliDecompress).then((m)=>console.log(m))
+
 
 module.exports=rzlib;
