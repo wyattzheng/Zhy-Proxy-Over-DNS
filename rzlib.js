@@ -9,7 +9,7 @@ return new Promise((y)=>{
 zlib.deflate(raw,(err,msg)=>{
 this.rid++;
 let nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);});
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err || msg.length>=raw.length)y(raw)else y(msg);}},10);});
 
 })
 }
@@ -22,7 +22,7 @@ return new Promise((y)=>{
 zlib.inflate(raw,(err,msg)=>{
 this.rid++;
 var nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);});
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw)else y(msg);}},10);});
 
 
 });
@@ -36,7 +36,7 @@ return new Promise((y)=>{
 zlib.gunzip(raw,(err,msg)=>{
 this.rid++;
 var nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);});
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw)else y(msg);}},10);});
 
 
 });
@@ -49,7 +49,7 @@ return new Promise((y)=>{
 zlib.gzip(raw,(err,msg)=>{
 this.rid++;
 var nowrid=this.rid;
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);});
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err || msg.length>=raw.length)y(raw)else y(msg);}},10);});
 
 
 });
