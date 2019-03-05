@@ -267,6 +267,7 @@ function tcpserveroverzdns(domain){
 	this.SETs={};//记录所有桥的组
 	this.SETsINFO={};//记录每个组的信息
 
+	this.sendingqueue=[];
 	this.whichSET=(id)=>{//搜寻某个id的桥来自哪个组
 	
 	
@@ -296,29 +297,15 @@ if(this.connections[i].Timeout){
 		
 	},1000);
 	
-	function encode(action,data){
-		if(!data)data=Buffer.alloc(0);
-	let buf=Buffer.alloc(2+action.length+2+data.length);
-	let offset=0;
-	buf.writeUInt16BE(action.length,offset);offset+=2;
-	Buffer.from(action).copy(buf,offset);offset+=action.length;
-	buf.writeUInt16BE(data.length,offset);offset+=2;
-	data.copy(buf,offset);offset+=data.length;
-	return buf;
-	}
-	function decode(raw){
-		let ret={action:"",data:Buffer.alloc(0)};
-		let offset=0;
-		let actionlen=raw.readUInt16BE(offset);offset+=2;
-		ret.action=raw.slice(offset,offset+actionlen)+"";offset+=actionlen;
-		let datalen=raw.readUInt16BE(offset);offset+=2;
-		ret.data=raw.slice(offset,offset+datalen);offset+=datalen;
-		return ret;
-	}
-	var rz=new rzlib();//reliable zlib
-	
-	this.send=async (set,raw)=>{
-		return rz.lzma_comp(raw).then((dat)=>{
+	this.handleTimer=(async()=>{
+		let sleep=(tm)=>{
+			return new Promise((y)=>setTimeout(y,tm));
+		}
+		while(true){
+		let raw=this.sendingqueue.shift();
+		
+		if(raw)
+		await rz.lzma_comp(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
 		
@@ -364,7 +351,35 @@ if(this.connections[i].Timeout){
 			
 				}
 		});
+		await sleep(10);
+		}
+	})();
+	function encode(action,data){
+		if(!data)data=Buffer.alloc(0);
+	let buf=Buffer.alloc(2+action.length+2+data.length);
+	let offset=0;
+	buf.writeUInt16BE(action.length,offset);offset+=2;
+	Buffer.from(action).copy(buf,offset);offset+=action.length;
+	buf.writeUInt16BE(data.length,offset);offset+=2;
+	data.copy(buf,offset);offset+=data.length;
+	return buf;
 	}
+	function decode(raw){
+		let ret={action:"",data:Buffer.alloc(0)};
+		let offset=0;
+		let actionlen=raw.readUInt16BE(offset);offset+=2;
+		ret.action=raw.slice(offset,offset+actionlen)+"";offset+=actionlen;
+		let datalen=raw.readUInt16BE(offset);offset+=2;
+		ret.data=raw.slice(offset,offset+datalen);offset+=datalen;
+		return ret;
+	}
+	var rz=new rzlib();//reliable zlib
+	
+	this.send=async (set,raw)=>{
+		this.sendingqueue.push({s:set,r:raw});
+		
+	}
+	
 
 	this.applyfor=(idinfo,setid)=>{
 
@@ -505,11 +520,9 @@ try{
 							let str=(dat+"");
 				if(str.substring(0,4)=="HTTP")
 			console.log("得到数据",str.split("\r\n")[0]);
-			else console.log("得到数据",dat.length,this.connections[fromset].address())
-(async()=>{
+			else console.log("得到数据",dat.length,this.connections[fromset].address());
 for(let i=0;i<=dat.length;i+=2048*this.SETs[fromset].length)			
 this.send(fromset,dat.slice(i,i+2048*this.SETs[fromset].length));
-})();
 
 			});
 //				sock.dataid=0;
