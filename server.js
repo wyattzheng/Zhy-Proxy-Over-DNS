@@ -4,6 +4,8 @@ var dnspacket=require("./zdns.js");
 const dgram = require('dgram'); 
 const tcp = require('net');
 const dns = require('dns');
+const zlib = require('zlib');
+
 //const server = dgram.createSocket('udp4');
 const fs = require('fs');
 var base32 = require("./base32.js");
@@ -497,8 +499,8 @@ try{
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
-for(let i=0;i<=dat.length;i+=512*this.SETs[fromset].length)			
-this.send(fromset,dat.slice(i,i+512*this.SETs[fromset].length));
+for(let i=0;i<=dat.length;i+=1024*this.SETs[fromset].length)			
+this.send(zlib.deflate(fromset,dat.slice(i,i+1024*this.SETs[fromset].length)));
 
 
 			});

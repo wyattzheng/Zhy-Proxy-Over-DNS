@@ -1,9 +1,10 @@
-﻿var tcp=require("net");
+var tcp=require("net");
 var parser=require("http-parser-js").HTTPParser;
 var U=require("url");
 var dnspacket=require("./zdns.js");
 var dgram = require('./udpslow.js'); 
 var base32 = require("./base32.js");
+var zlib = require('zlib');
 
 var zhybaseencode=base32.encode;
 var zhybasedecode=base32.decode;
@@ -151,7 +152,7 @@ tcp.createServer((req)=>{
 		if(!isDomain)return;
 //		if(host.ip!="esu.wiki")return;
 
-	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:500});
+	var client=new tcpclientoverzdns(dnstunnel,hbman,{dnspacketid_limit:5000});
 
 			client.connect(host.port,host.ip,(err)=>{
 			req.tunnel=false;
@@ -562,7 +563,7 @@ this.writeraw=function(data){//分段发送
 					for(let i=0;i<partscount;i++)
 						arr[i]=this.partdatas[dataid][i];
 					
-					fulldata=Buffer.concat(arr);
+					fulldata=zlib.inflate(Buffer.concat(arr));
 					delete this.partdatas[dataid];
 					
 					//console.log(dataid,"拼接成功");
