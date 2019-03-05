@@ -1,5 +1,5 @@
 var zlib=require('zlib');
-var LZMA=require('lzma-native');
+//var LZMA=require('lzma-native');
 
 function rzlib(){
 	
@@ -88,7 +88,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err || msg.
 });
 
 }
-
+/*
 this.lzma_comp=(raw)=>{
 this.id++;
 var nowid=this.id;
@@ -127,7 +127,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);
 
 });
 
-}
+}*/
 
 
 }
