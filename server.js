@@ -318,7 +318,7 @@ if(this.connections[i].Timeout){
 	var rz=new rzlib();//reliable zlib
 	
 	this.send=(set,raw)=>{
-		rz.gzip(raw).then((dat)=>{
+		rz.lzma_comp(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
 		
