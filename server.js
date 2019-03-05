@@ -309,7 +309,7 @@ if(this.connections[i].Timeout){
 		let set=rawinfo.s;
 		
 		
-		await rz.gzip(raw).then((dat)=>{
+		await rz.BrotliCompress(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
 		

@@ -5,6 +5,36 @@ function rzlib(){
 	
 this.id=0;
 this.rid=0;
+
+
+this.BrotliCompress=(raw)=>{
+this.id++;
+var nowid=this.id;
+return new Promise((y)=>{
+zlib.BrotliCompress(raw,(err,msg)=>{
+this.rid++;
+var nowrid=this.rid;
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
+
+
+});
+
+}
+
+
+this.BrotliDecompress=(raw)=>{
+this.id++;
+var nowid=this.id;
+return new Promise((y)=>{
+zlib.BrotliDecompress(raw,(err,msg)=>{
+this.rid++;
+var nowrid=this.rid;
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);});
+
+
+});
+
+}
 this.deflate=(raw)=>{
 this.id++;
 var nowid=this.id;

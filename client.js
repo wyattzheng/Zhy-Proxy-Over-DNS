@@ -564,7 +564,7 @@ this.writeraw=function(data){//分段发送
 						arr[i]=this.partdatas[dataid][i];
 					
 					let conc=Buffer.concat(arr);
-					rz.gunzip(conc).then((fulldata)=>{
+					rz.BrotliDecompress(conc).then((fulldata)=>{
 				
 					delete this.partdatas[dataid];
 					
