@@ -31,7 +31,6 @@ var nowid=this.id;
 return new Promise((y)=>{
 zlib.brotliDecompress(raw,{},(err,msg)=>{
 
-	console.log(err,msg,raw.length);
 this.rid++;
 var nowrid=this.rid;
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err ||msg.length==0)y(raw);else y(msg);}},10);});
