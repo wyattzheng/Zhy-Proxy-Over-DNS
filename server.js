@@ -319,6 +319,8 @@ if(this.connections[i].Timeout){
 	
 	this.send=(set,raw)=>{
 		rz.lzma_comp(raw).then((dat)=>{
+		if(dat.length==0||dat.length>=raw.length)
+			dat=raw;
 		
 				if(this.connections[set]){
 				this.connections[set].Timeout=5000;
