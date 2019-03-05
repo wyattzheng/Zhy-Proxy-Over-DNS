@@ -1,7 +1,8 @@
 var zlib=require('zlib');
-var LZMA=require('./lzma_binary/src/lzma.js').LZMA;
+var LZMA=require('lzma-native').LZMA;
+
 function rzlib(){
-var lzma=new LZMA();
+var lzma=LZMA();
 	
 this.id=0;
 this.rid=0;
@@ -81,12 +82,13 @@ this.lzma_decomp=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
+
 lzma.decompress(raw,(msg,err)=>{
 	this.rid++;
 
 var nowrid=this.rid;//msg=Buffer.from(msg);
 
-let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);
+let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);
 
 
 });
@@ -100,7 +102,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);
 }
 
 //let rz=new rzlib();
-//rz.lzma_comp(Buffer.from("...")).then(rz.lzma_decomp).then((m)=>console.log(m))
+//rz.lzma_comp(Buffer.from(".....")).then(rz.lzma_decomp).then((m)=>console.log(m))
 	
 
 module.exports=rzlib;

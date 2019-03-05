@@ -564,7 +564,7 @@ this.writeraw=function(data){//分段发送
 						arr[i]=this.partdatas[dataid][i];
 					
 					let conc=Buffer.concat(arr);
-					rz.lzma_decomp(conc).then((fulldata)=>{
+					rz.gunzip(conc).then((fulldata)=>{
 				
 					delete this.partdatas[dataid];
 					
