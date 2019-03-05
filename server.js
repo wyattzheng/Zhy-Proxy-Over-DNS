@@ -1,4 +1,4 @@
-var httpproxy = require('http-proxy');
+﻿var httpproxy = require('http-proxy');
 var dnspacket=require("./zdns.js");
 
 const dgram = require('dgram'); 
@@ -115,14 +115,14 @@ this.com[i].live--;}
 		if(!isHeartbeat){
 
 		if(sendid!=expectid){
-			/*if(!this.com[comid].sendpacketcache[sendid])
+			if(!this.com[comid].sendpacketcache[sendid])
 			this.com[comid].sendpacketcache[sendid]={msg:msg,r:r};
 
 			if(this.com[comid].sendpacketcache[exceptid])
 				this.handlemessage(this.com[comid].sendpacketcache[exceptid].msg,this.com[comid].sendpacketcache[exceptid].r)
 			
 			console.log(Object.keys(this.com[comid].sendpacketcache).length);
-			*/
+			
 			return;}
 		
 		

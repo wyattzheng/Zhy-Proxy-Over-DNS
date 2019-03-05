@@ -1,4 +1,4 @@
-var tcp=require("net");
+﻿var tcp=require("net");
 var parser=require("http-parser-js").HTTPParser;
 var U=require("url");
 var dnspacket=require("./zdns.js");
@@ -28,45 +28,26 @@ var DNS=//使用的公共DNS隧道组集合
 ]*/
 [
 
-//[["119.29.29.29",0.25],["9.9.9.9",0.25],["1.2.4.8",0.25],["210.2.4.8",0.25]],
-//[],
 
-//[["101.6.6.6",0.25],["4.2.2.1",0.25],["168.126.63.1",0.25],["4.2.2.2",0.25]],
-
-
-//[["8.8.8.8",0.25],["8.8.4.4",0.25],["168.95.1.1",0.25],["168.95.192.1",0.25]],
-//[]
-[["8.8.8.8",0.5],["8.8.4.4",0.5]],[["140.207.198.6",0.5],["123.125.81.6",0.5]],
-[["1.2.4.8",0.5],["168.95.1.1",0.5]],[["168.126.63.1",0.5],["168.95.192.1",0.5]],
-[["63.223.94.66",0.5],["4.2.2.2",0.5]],[["210.2.4.8",0.5],["216.146.35.35",0.5]],
-[["168.126.63.1",0.5],["4.2.2.1",0.5]],[["119.29.29.29",0.5],["101.6.6.6",0.5]],
-
-/*,
-[],
-[],
-[],
-*/
-/*
-[["8.8.8.8",1]],[["8.8.4.4",1]],[["140.207.198.6",1]],[["123.125.81.6",1]],
-[["1.2.4.8",1]],[["168.95.1.1",1]],[["168.126.63.1",1]],[["168.95.192.1",1]],
-[["63.223.94.66",1]],[["4.2.2.2",1]],[["210.2.4.8",1]],[["216.146.35.35",1]],
-[["168.126.63.1",1]],[["4.2.2.1",1]],[["119.29.29.29",1]],[["101.6.6.6",1]]
-*/
-//[],
+[["8.8.8.8",0.5],["8.8.4.4",0.5]],
+[["140.207.198.6",0.5],["123.125.81.6",0.5]],
+[["1.2.4.8",0.5],["168.95.1.1",0.5]],
+[["168.126.63.1",0.5],["168.95.192.1",0.5]],
+[["63.223.94.66",0.5],["4.2.2.2",0.5]],
+[["210.2.4.8",0.5],["216.146.35.35",0.5]],
+[["168.126.63.1",0.5],["4.2.2.1",0.5]],
+[["119.29.29.29",0.5],["101.6.6.6",0.5]],
+[["9.9.9.9",0.5],["1.2.4.8",0.5]],
+[["210.2.4.8",0.5],["101.226.4.6",0.5]],
 
 
-//[["63.223.94.66",0.12],["64.6.64.6",0.12],["216.146.35.35",0.12],["64.6.65.6",0.25]],
-
+[["208.67.222.222",0.5],["208.67.222.220",0.5]],
+[["208.67.220.222",0.5],["208.67.220.220",0.5]],
 
 
 ];
-//,
-//[["208.67.222.220",0.5],["40.73.101.101",0.5]],
-//[["223.113.97.99",0.5],["119.29.29.29",0.5]],
-//[["63.223.94.66",0.5],["40.73.101.101",0.5]],
-//[["168.95.1.1",0.5],["168.95.192.1",0.5]],
 
-var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com","qpic.cn","clients1.google.com"];
+var except=["appex.bing.com","gvt2.com","g.live.com","telemetry.microsoft.com","appex-rf.msn.com","aria.microsoft.com","c.gj.qq.com","pinyin.sogou.com","guanjia.qq.com","syzs.qq.com","gvt3.com","www.google-analytics.com","doubleclick.net","clients2.google.com","mtalk.google.com","msedge.net","clients4.google.com","officeapps.live.com","msocsp.com","login.live.com","mscrl.microsoft.com","crl.microsoft.com","go.microsoft.com","imtt.qq.com","officeclient.microsoft.com","googleapis.com","clients5.google.com","s.pc.qq.com","wns.windows.com","qq.com","shouji.sogou.com","ime.sogou.com","storage.live.com","vivo.com.cn","s-msn.com","data.microsoft.com","ssw.live.com","clients.google.com","qpic.cn","clients1.google.com","ie.sogou.com"];
 
 
 var hbman=new heartbeatManager(DNS);
@@ -907,7 +888,7 @@ function zdns_client(domain,dnsserver,heartbeat,dnspacketlimit){//heartbeat->需
 		this.dnspacketid++;if(this.dnspacketid>60000)this.dnspacketid=0;
 		
 		if(dnspacketlimit)
-		if(this.dnspacketid>dnspacketlimit)this.close();
+		if(this.dnspacketid>dnspacketlimit){console.log("通信桥 "+this.comid+" 因为传输数据过长强制关闭");this.close();}
 		
 	//		console.log(pk.answers);
 	
