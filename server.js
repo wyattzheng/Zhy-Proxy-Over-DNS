@@ -4,7 +4,7 @@ var dnspacket=require("./zdns.js");
 const dgram = require('dgram'); 
 const tcp = require('net');
 const dns = require('dns');
-const zlib = require('zlib');
+const rzlib = require('./rzlib.js');
 
 //const server = dgram.createSocket('udp4');
 const fs = require('fs');
@@ -268,6 +268,9 @@ function tcpserveroverzdns(domain){
 	this.SETsINFO={};//记录每个组的信息
 
 	this.whichSET=(id)=>{//搜寻某个id的桥来自哪个组
+	
+	var rz=new rzlib();//reliable zlib
+	
 	for(var set in this.SETs)
 		if(this.SETs[set])
 		for(let i=0;i<this.SETs[set].length;i++)
@@ -313,7 +316,8 @@ if(this.connections[i].Timeout){
 		ret.data=raw.slice(offset,offset+datalen);offset+=datalen;
 		return ret;
 	}
-	this.send=(set,dat)=>{
+	this.send=(set,raw)=>{
+		rz.deflate.then(raw,(dat)=>{
 		
 				if(this.connections[set]){
 				this.connections[set].Timeout=5000;
@@ -356,6 +360,7 @@ if(this.connections[i].Timeout){
 
 			
 				}
+		});
 	}
 
 	this.applyfor=(idinfo,setid)=>{
@@ -500,7 +505,7 @@ try{
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
 for(let i=0;i<=dat.length;i+=1024*this.SETs[fromset].length)			
-this.send(zlib.deflate(fromset,dat.slice(i,i+1024*this.SETs[fromset].length)));
+this.send(fromset,dat.slice(i,i+1024*this.SETs[fromset].length));
 
 
 			});

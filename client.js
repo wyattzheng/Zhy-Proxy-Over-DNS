@@ -4,7 +4,7 @@ var U=require("url");
 var dnspacket=require("./zdns.js");
 var dgram = require('./udpslow.js'); 
 var base32 = require("./base32.js");
-var zlib = require('zlib');
+var rzlib = require('./rzlib.js');
 
 var zhybaseencode=base32.encode;
 var zhybasedecode=base32.decode;
@@ -277,7 +277,7 @@ function tcpclientoverzdns(domain,hbmanager,config){
 	this.zdnslimit=config.dnspacketid_limit;
 	
 	var dnsservers=hbmanager.getasetofdns();
-	
+	var rz=new rzlib();
 	
 	for(var i in dnsservers)
 	{
@@ -563,20 +563,24 @@ this.writeraw=function(data){//分段发送
 					for(let i=0;i<partscount;i++)
 						arr[i]=this.partdatas[dataid][i];
 					
-					fulldata=zlib.inflate(Buffer.concat(arr));
+					rz.inflate(Buffer.concat(arr)).then((fulldata)=>{
+				
 					delete this.partdatas[dataid];
 					
 					//console.log(dataid,"拼接成功");
 					console.log("收到数据",fulldata.length,this.ip+":"+this.port);
+					
+					if(this.callback)
+					if(fulldata)
+					this.callback(fulldata);
+		
+					});
 				}
 				
 				
 					
 			this.actived=1000;
 			
-			if(this.callback)
-				if(fulldata)
-				this.callback(fulldata);
 			
 			
 			}
