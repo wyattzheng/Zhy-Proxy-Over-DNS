@@ -303,10 +303,12 @@ if(this.connections[i].Timeout){
 		}
 		while(true){
 		let rawinfo=this.sendingqueue.shift();
+		if(!rawinfo){await sleep(100);continue;}
+			
 		let raw=rawinfo.r;
 		let set=rawinfo.s;
 		
-		if(raw)
+		
 		await rz.lzma_comp(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
@@ -353,7 +355,7 @@ if(this.connections[i].Timeout){
 			
 				}
 		});
-		await sleep(10);
+		
 		}
 	})();
 	function encode(action,data){
