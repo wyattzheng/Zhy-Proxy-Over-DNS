@@ -2347,6 +2347,7 @@ var LZMA = (function () {
     /** ce */
     /** ds */
     function decode(utf) {
+		return Buffer.from(utf);
         var i = 0, j = 0, x, y, z, l = utf.length, buf = [], charCodes = [];
         for (; i < l; ++i, ++j) {
             x = utf[i] & 255;

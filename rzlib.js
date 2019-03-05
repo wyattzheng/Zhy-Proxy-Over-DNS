@@ -84,7 +84,7 @@ return new Promise((y)=>{
 lzma.decompress(raw,(msg,err)=>{
 	this.rid++;
 
-var nowrid=this.rid;msg=Buffer.from(msg);
+var nowrid=this.rid;//msg=Buffer.from(msg);
 
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);
 
@@ -100,7 +100,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);
 }
 
 //let rz=new rzlib();
-//rz.lzma_comp(Buffer.from("...")).then(rz.lzma_decomp).then((m)=>console.log(m+""))
+//rz.lzma_comp(Buffer.from("...")).then(rz.lzma_decomp).then((m)=>console.log(m))
 
 
 module.exports=rzlib;
