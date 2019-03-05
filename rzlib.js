@@ -27,7 +27,7 @@ this.BrotliDecompress=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
-zlib.brotliDecompress(raw,(err,msg)=>{
+zlib.brotliDecompress(raw,{},(err,msg)=>{
 	
 this.rid++;
 var nowrid=this.rid;
@@ -134,7 +134,7 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);
 
 }
 
-//let rz=new rzlib();rz.BrotliCompress(Buffer.from("....sad.")).then(rz.BrotliDecompress).then((m)=>console.log(m))
+//let rz=new rzlib();rz.BrotliCompress(Buffer.from("...")).then(rz.BrotliDecompress).then((m)=>console.log(m))
 
 
 module.exports=rzlib;
