@@ -318,7 +318,7 @@ if(this.connections[i].Timeout){
 	var rz=new rzlib();//reliable zlib
 	
 	this.send=(set,raw)=>{
-		rz.deflate(raw).then((dat)=>{
+		rz.gzip(raw).then((dat)=>{
 		
 				if(this.connections[set]){
 				this.connections[set].Timeout=5000;
