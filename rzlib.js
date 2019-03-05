@@ -66,6 +66,7 @@ return new Promise((y)=>{
 var lzma=LZMA();
 	
 lzma.compress(raw,9,(msg,err)=>{
+delete lzma;
 this.rid++;
 var nowrid=this.rid;msg=Buffer.from(msg);
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer); y(msg);}},10);
@@ -85,11 +86,14 @@ return new Promise((y)=>{
 var lzma=LZMA();
 
 lzma.decompress(raw,(msg,err)=>{
+delete lzma;
 	this.rid++;
 
 var nowrid=this.rid;//msg=Buffer.from(msg);
 
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);else y(msg);}},10);
+
+
 
 
 });
