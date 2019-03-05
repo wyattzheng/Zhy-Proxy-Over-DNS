@@ -1,5 +1,5 @@
 var zlib=require('zlib');
-var LZMA=require('lzma-native').LZMA;
+var LZMA=require('lzma-native');
 
 function rzlib(){
 	
@@ -63,10 +63,8 @@ this.lzma_comp=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
-var lzma=LZMA();
 	
-lzma.compress(raw,9,(msg,err)=>{
-delete lzma;
+LZMA.compress(raw,9,(msg,err)=>{
 this.rid++;
 var nowrid=this.rid;msg=Buffer.from(msg);
 let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer); y(msg);}},10);
@@ -83,10 +81,8 @@ this.lzma_decomp=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
-var lzma=LZMA();
 
-lzma.decompress(raw,(msg,err)=>{
-delete lzma;
+LZMA.decompress(raw,(msg,err)=>{
 	this.rid++;
 
 var nowrid=this.rid;//msg=Buffer.from(msg);
@@ -106,8 +102,11 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);if(err)y(raw);
 
 }
 
-//let rz=new rzlib();
-//rz.lzma_comp(Buffer.from(".....")).then(rz.lzma_decomp).then((m)=>console.log(m))
+(async()=>{
+let rz=new rzlib();
+for(let i=0;i<100;i++)
+await rz.lzma_comp(Buffer.from("....sad.")).then(rz.lzma_decomp).then((m)=>console.log(m))
 	
+})();
 
 module.exports=rzlib;

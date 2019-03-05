@@ -317,8 +317,8 @@ if(this.connections[i].Timeout){
 	}
 	var rz=new rzlib();//reliable zlib
 	
-	this.send=(set,raw)=>{
-		rz.lzma_comp(raw).then((dat)=>{
+	this.send=async (set,raw)=>{
+		return rz.lzma_comp(raw).then((dat)=>{
 		if(dat.length==0||dat.length>=raw.length)
 			dat=raw;
 		
@@ -506,10 +506,10 @@ try{
 				if(str.substring(0,4)=="HTTP")
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
-
+(async()=>{
 for(let i=0;i<=dat.length;i+=2048*this.SETs[fromset].length)			
 this.send(fromset,dat.slice(i,i+2048*this.SETs[fromset].length));
-
+})();
 
 			});
 //				sock.dataid=0;
