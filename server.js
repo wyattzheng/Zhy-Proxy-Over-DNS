@@ -505,8 +505,8 @@ try{
 			console.log("得到数据",str.split("\r\n")[0]);
 			else console.log("得到数据",dat.length,this.connections[fromset].address())
 
-for(let i=0;i<=dat.length;i+=1024*this.SETs[fromset].length)			
-this.send(fromset,dat.slice(i,i+1024*this.SETs[fromset].length));
+for(let i=0;i<=dat.length;i+=4096*this.SETs[fromset].length)			
+this.send(fromset,dat.slice(i,i+4096*this.SETs[fromset].length));
 
 
 			});

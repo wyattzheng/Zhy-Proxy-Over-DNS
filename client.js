@@ -563,12 +563,13 @@ this.writeraw=function(data){//分段发送
 					for(let i=0;i<partscount;i++)
 						arr[i]=this.partdatas[dataid][i];
 					
-					rz.inflate(Buffer.concat(arr)).then((fulldata)=>{
+					let conc=Buffer.concat(arr);
+					rz.inflate(conc).then((fulldata)=>{
 				
 					delete this.partdatas[dataid];
 					
 					//console.log(dataid,"拼接成功");
-					console.log("收到数据",fulldata.length,this.ip+":"+this.port);
+					console.log("收到数据",fulldata.length,"<- "+conc.length,this.ip+":"+this.port);
 					
 					if(this.callback)
 					if(fulldata)
