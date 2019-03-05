@@ -118,11 +118,8 @@ this.com[i].live--;}
 			if(!this.com[comid].sendpacketcache[sendid])
 			this.com[comid].sendpacketcache[sendid]={msg:msg,r:r};
 
-			if(this.com[comid].sendpacketcache[exceptid])
-				this.handlemessage(this.com[comid].sendpacketcache[exceptid].msg,this.com[comid].sendpacketcache[exceptid].r)
-			
-			console.log(Object.keys(this.com[comid].sendpacketcache).length);
-			
+			if(this.com[comid].sendpacketcache[expectid])
+				this.handlemessage(this.com[comid].sendpacketcache[expectid].msg,this.com[comid].sendpacketcache[expectid].r)
 			return;}
 		
 		
