@@ -1,7 +1,7 @@
 var zlib=require('zlib');
-var LZMA=require('lzma').LZMA;
+var LZMA=require('./lzma_binary/src/lzma.js').LZMA;
 function rzlib(){
-var lzma=new LZMA("./lzma_worker.js");
+var lzma=new LZMA();
 	
 this.id=0;
 this.rid=0;
@@ -101,6 +101,6 @@ let timer=setInterval(()=>{if(nowid==nowrid){clearInterval(timer);y(msg);}},10);
 
 //let rz=new rzlib();
 //rz.lzma_comp(Buffer.from("...")).then(rz.lzma_decomp).then((m)=>console.log(m))
-
+	
 
 module.exports=rzlib;
