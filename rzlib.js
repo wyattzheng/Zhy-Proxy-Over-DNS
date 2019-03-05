@@ -2,7 +2,6 @@ var zlib=require('zlib');
 var LZMA=require('lzma-native').LZMA;
 
 function rzlib(){
-var lzma=LZMA();
 	
 this.id=0;
 this.rid=0;
@@ -64,6 +63,7 @@ this.lzma_comp=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
+var lzma=LZMA();
 	
 lzma.compress(raw,9,(msg,err)=>{
 this.rid++;
@@ -82,6 +82,7 @@ this.lzma_decomp=(raw)=>{
 this.id++;
 var nowid=this.id;
 return new Promise((y)=>{
+var lzma=LZMA();
 
 lzma.decompress(raw,(msg,err)=>{
 	this.rid++;
