@@ -269,7 +269,6 @@ function tcpserveroverzdns(domain){
 
 	this.whichSET=(id)=>{//搜寻某个id的桥来自哪个组
 	
-	var rz=new rzlib();//reliable zlib
 	
 	for(var set in this.SETs)
 		if(this.SETs[set])
@@ -316,8 +315,10 @@ if(this.connections[i].Timeout){
 		ret.data=raw.slice(offset,offset+datalen);offset+=datalen;
 		return ret;
 	}
+	var rz=new rzlib();//reliable zlib
+	
 	this.send=(set,raw)=>{
-		rz.deflate.then(raw,(dat)=>{
+		rz.deflate(raw).then((dat)=>{
 		
 				if(this.connections[set]){
 				this.connections[set].Timeout=5000;
