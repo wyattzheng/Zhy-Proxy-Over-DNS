@@ -302,7 +302,9 @@ if(this.connections[i].Timeout){
 			return new Promise((y)=>setTimeout(y,tm));
 		}
 		while(true){
-		let raw=this.sendingqueue.shift();
+		let rawinfo=this.sendingqueue.shift();
+		let raw=rawinfo.r;
+		let set=rawinfo.s;
 		
 		if(raw)
 		await rz.lzma_comp(raw).then((dat)=>{
